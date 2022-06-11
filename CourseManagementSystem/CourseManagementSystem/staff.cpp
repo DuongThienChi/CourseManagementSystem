@@ -8,6 +8,7 @@ bool Quick_Input_Classes() {
     cout << "Linked to file classes: ";
     string link;
     getline(cin, link);
+    gotoxy(35, 7);
     cout << "Name of class: ";
     string name_class;
     getline(cin, name_class);
@@ -21,7 +22,7 @@ bool Quick_Input_Classes() {
     else {
         string source_file = link;
         string schoolyear_path = "./Data/" + to_string(currentdate.Year) + "-" + to_string(currentdate.Year + 1);
-        string destination_file = schoolyear_path + "/classes/";
+        string destination_file = schoolyear_path + "/classes/firstyear/";
         //for (int i = source_file.length(); i >= 0; i--) {
         //    if (source_file[i] == '/') {
         //        name_class = source_file.substr(i + 1, source_file.length() - i - 1); // /data/classes/22ctt2.csv
@@ -41,11 +42,10 @@ bool Quick_Input_Classes() {
             }
             sfile.close();
             dfile.close();
-            notify_box("Class" + name_class + "is created");
+            notify_box("Class" + name_class + " is created");
         }
         else {
             notify_box("Can't open file");
-            system("pause");
             return 0;
         }
         return 1;
