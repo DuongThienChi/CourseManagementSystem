@@ -1,15 +1,69 @@
-#include "staff.h"
 
-void create_School_Year() {
+
+
+#include "staff.h"
+bool Quick_Input_Classes() {
+    system("cls");
+    gotoxy(35, 7);
+    cout << "Linked to file classes: ";
+    string link;
+    getline(cin, link);
+    cout << "Name of class: ";
+    string name_class;
+    getline(cin, name_class);
+    ifstream classe_in;
+    classe_in.open(link);
+    if (!classe_in.is_open()) {
+        notify_box("Can't open file");
+        system("pause");
+        return 0;
+    }
+    else {
+        string source_file = link;
+        string schoolyear_path = "./Data/" + to_string(currentdate.Year) + "-" + to_string(currentdate.Year + 1);
+        string destination_file = schoolyear_path + "/classes/";
+        //for (int i = source_file.length(); i >= 0; i--) {
+        //    if (source_file[i] == '/') {
+        //        name_class = source_file.substr(i + 1, source_file.length() - i - 1); // /data/classes/22ctt2.csv
+        //        break;
+        //    }
+        //}
+        destination_file += name_class;
+        /*Xu li sao chep du lieu */
+        ifstream sfile;
+        sfile.open(source_file, ios::binary | ios::in);
+        ofstream dfile;
+        dfile.open(destination_file, ios::binary | ios::out);
+        if (sfile.is_open()) {
+            char c;
+            while (sfile.get(c) && sfile.good()) {
+                dfile.put(c);/*Chep tung byte*/
+            }
+            sfile.close();
+            dfile.close();
+            notify_box("Class" + name_class + "is created");
+        }
+        else {
+            notify_box("Can't open file");
+            system("pause");
+            return 0;
+        }
+        return 1;
+    }
+
+    
+}
+bool create_School_Year() {
     const int  Allow_month = 9;
     if (currentdate.Month != 9) {
-        string mess = { "Nam hoc moi chua bat dau!" };
+        string mess = { "The new school year hasn't started yet!" };
         notify_box(mess);
+        return 0;
     }
     else {
         string schoolyear_path = "./Data/" + to_string(currentdate.Year) + "-" + to_string(currentdate.Year + 1);
         string prevSchoolyear_path = "./Data/" + to_string(currentdate.Year - 1) + "-" + to_string(currentdate.Year);
-        string classes_path = schoolyear_path + "/classes";
+        string classes_path = schoolyear_path + "/classes/firstyear/";
         /*ofstream fout("./data/schoolyear.dat");
         fout << currentSchoolYear << endl;
         fout << dateToStr(currentDate) << endl;
@@ -25,6 +79,7 @@ void create_School_Year() {
             fs::rename(classes_path + "/secondyear", classes_path + "/thirdyear");
             fs::rename(classes_path + "/firstyear", classes_path + "/secondyear");
             fs::create_directories(classes_path + "/firstyear");
+            return 1;
         }
         else {
             //   ofstream(schoolYearPath + "/semester.dat");
@@ -32,6 +87,7 @@ void create_School_Year() {
             fs::create_directories(classes_path + "/secondyear");
             fs::create_directories(classes_path + "/thirdyear");
             fs::create_directories(classes_path + "/finalyear");
+            return 1;
         }
 
     }
@@ -100,7 +156,7 @@ void Staff_lg() {
         }
         if (flag == false) {
             gotoxy(35, 8);
-            cout << "Sai tai khoan hoac mat khau vui long nhap lai" << endl;
+            cout << "Wrong user name or password" << endl;
             thoatctrinh();
             cin.ignore();
         }
@@ -110,7 +166,7 @@ void Staff_lg() {
     staff.close();
     if (flag) {
 
-        char menu_staff[5][40] = { "1.Your profile", "2.Change the password","3.Create new School Year", "4.View your scoreboard","5.Log out" };
+        char menu_staff[5][40] = { "1.Your profile", "2.Change the password","3.Create new School Year", "4.Quick Input Class","5.Log out" };
         do {
             system("cls");
             int choice = menu(menu_staff, 5, 40);
@@ -135,13 +191,12 @@ void Staff_lg() {
 
             }
             else if (choice == 2) {
-                create_School_Year();
-                string mssg = { "Da tao thanh cong nam hoc moi" };
-                notify_box(mssg);
+                if(create_School_Year()) notify_box("New School Year is created!");
+                
             }
             else if (choice == 3)
-            {
-                cout << 4;
+            {   
+                if(Quick_Input_Classes()) notify_box("Input Class successful!");
             }
             else if (choice == 4) {
                 break;
