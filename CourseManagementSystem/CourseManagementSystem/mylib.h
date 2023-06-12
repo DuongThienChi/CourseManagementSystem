@@ -43,7 +43,7 @@ struct Current_Date {
 void color(int color);
 void gotoxy(int x, int y);
 void disp(int n, char menu[][40], int rows, int cols);
-int count(ifstream& file);
+int count(string path);
 void changepass(Staff* staff_user, Student* std_user);
 int menu(char menu[][40], int rows, int cols);
 void Menu_Login();
@@ -52,7 +52,7 @@ void getcurrentDate();
 void notify_box(string messg);
 bool dirExists(const std::string& dirName_in);
 void copyFolder(string from, string to);
-
+void load_Student(Student* &DS, string path);
 
 
 extern Current_Date currentdate;

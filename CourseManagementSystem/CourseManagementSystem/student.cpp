@@ -1,47 +1,63 @@
 
 #include "student.h"
-void Student_lg() {
+void load_Student(Student* &DS, string path) {
     ifstream student;
+    student.open(path);
+    if (!student.is_open()) {
+        cout << "Can't open file";
+        system("pause");
+        return;
+    }
+    else{
+        int i = 0;
+        string temp;
+        string No;
+        string Id;
+        string Firstname;
+        string Lastname;
+        string Gender;
+        string DoB;
+        string Social_Id;
+        string password;
+        getline(student, temp);
+        while (!student.eof()) {
+            getline(student, No, ',');
+            DS[i].No = No;
+            getline(student, Id, ',');
+            DS[i].Id = Id;
+            getline(student, Firstname, ',');
+            DS[i].Firstname = Firstname;
+            getline(student, Lastname, ',');
+            DS[i].Lastname = Lastname;
+            getline(student, Gender, ',');
+            DS[i].Gender = Gender;
+            getline(student, DoB, ',');
+            DS[i].DoB = DoB;
+            getline(student, Social_Id, ',');
+            DS[i].Social_Id = Social_Id;
+            getline(student, password);
+            DS[i].password = password;
+            i++;
+        }
+        student.close();
+    }
+}
+void Student_lg() {
     string path = "./Data/Users/Student.csv";
+    int sl;
+    ifstream student;
     student.open(path);
     if (!student.is_open()) {
         cout << "Can't open file";
         system("pause");
         return ;
     }
-    int sl = count(student); student.close();
-    student.open(path);
-    Student* DS = new Student[sl];
-    int i = 0;
-    string temp;
-    string No;
-    string Id;
-    string Firstname;
-    string Lastname;
-    string Gender;
-    string DoB;
-    string Social_Id;
-    string password;
-    getline(student, temp);
-    while (!student.eof()) {
-        getline(student, No, ',');
-        DS[i].No = No;
-        getline(student, Id, ',');
-        DS[i].Id = Id;
-        getline(student, Firstname, ',');
-        DS[i].Firstname = Firstname;
-        getline(student, Lastname, ',');
-        DS[i].Lastname = Lastname;
-        getline(student, Gender, ',');
-        DS[i].Gender = Gender;
-        getline(student, DoB, ',');
-        DS[i].DoB = DoB;
-        getline(student, Social_Id, ',');
-        DS[i].Social_Id = Social_Id;
-        getline(student, password);
-        DS[i].password = password;
-        i++;
+    else {
+        sl = count(path);
+        student.close();
     }
+    Student* DS = new Student[sl];
+    load_Student(DS, path);
     string username;
     string pass;
     cout << "Login as Student";
@@ -73,7 +89,6 @@ void Student_lg() {
         else break;
         system("pause");
     } while (1);
-    student.close();
     if (flag) {
 
         char menu_student[5][40] = { "1.Your profile", "2.Change the password","3.View list of your courses", "4.View your scoreboard","5.Log out" };

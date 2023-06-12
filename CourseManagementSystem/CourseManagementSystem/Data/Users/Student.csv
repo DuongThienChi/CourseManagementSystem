@@ -1,4 +1,4 @@
-No,Student ID,First name,Last name,Gender,Day of birth,Social ID,Password
+No, Student ID, First name, Last name, Gender, Day of birth, Social ID, Password
 1,22120001,Duy An,Bui,Male,01/01/2004,374728,123456789
 2,22120002,Quang An,Do,Male,02/01/2004,205885,123456789
 3,22120003,Nguyen Thien An,Le,Female,03/01/2004,611382,123456789
@@ -72,3 +72,4 @@ No,Student ID,First name,Last name,Gender,Day of birth,Social ID,Password
 71,22120086,Cong Giap,Nguyen,Male,11/03/2004,525095,123456789
 72,22120088,Ho Phuong Ha,Van ,Female,12/03/2004,575428,123456789
 73,22120089,Xuan Hai,Do,Male,13/03/2004,565653,123456789
+74,22120012,AKiki,Milio,Female,06-06-2004,21231312,12345678

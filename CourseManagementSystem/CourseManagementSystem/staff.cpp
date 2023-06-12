@@ -3,6 +3,30 @@
 
 #include "staff.h"
 const int  month_begin_a_schoolyear = 9;
+const int month_begin_semester_1 = 10;
+const int month_begin_semester_2 = 3;
+const int month_begin_semester_3 = 7;
+void add_to_User(Student a) {
+    fstream user;
+    user.open("./Data/Users/Student.csv");
+    if (!user.is_open()) {
+        notify_box("Can't open file");
+        system("pause");
+        return ;
+    }
+    else {
+        int sl = count("./Data/Users/Student.csv");
+        Student * DS = new Student[sl + 1];
+        load_Student(DS, "./Data/Users/Student.csv");
+        DS[sl] = a;
+        user << "No, Student ID, First name, Last name, Gender, Day of birth, Social ID, Password" << "\n";
+        for (int i = 0; i < sl + 1; i++) {
+            user << i + 1 << "," << DS[i].Id << "," << DS[i].Firstname << "," << DS[i].Lastname << "," << DS[i].Gender << "," << DS[i].DoB << "," << DS[i].Social_Id << ","<< DS[i].password<< "\n";
+        }
+        user.close();
+    }
+
+}
 bool Quick_Input_Classes() {
     system("cls");
     gotoxy(35, 7);
@@ -71,6 +95,13 @@ void sort_DS_Student(Student*&DS, int sl) {
         }
     }
 }
+bool check_repeat_student(Student a, Student* DS, int sl) {
+    for (int i = 0; i < sl; i++) {
+        if (stoi(a.Id) == stoi(DS[i].Id))
+            return 1;
+    }
+    return 0;
+}
 bool add_Student_to_Class() {
     system("cls");
     string schoolyear_path = "./Data/" + to_string(currentdate.Year) + "-" + to_string(currentdate.Year + 1);
@@ -80,85 +111,91 @@ bool add_Student_to_Class() {
         return 0;
     }
     else*/ {
-        Student new_std;
-        string name_Class;
-        gotoxy(35, 4);
-        cout << "Class:";
-        gotoxy(35, 5);
-        cout << "ID:";
-        gotoxy(35, 6);
-        cout << "First name :";
-        gotoxy(35, 7);
-        cout << "Last name:";
-        gotoxy(35, 8);
-        cout << "Gender:";
-        gotoxy(35, 9);
-        cout << "Day of birth:";
-        gotoxy(35, 10);
-        cout << "Scocial ID:";
-        gotoxy(35, 11);
-        cout << "Password:";
-        gotoxy(43, 4);
-        getline(cin, name_Class);
-        gotoxy(39, 5);
-        getline(cin, new_std.Id);
-        gotoxy(48, 6);
-        getline(cin, new_std.Firstname);
-        gotoxy(46, 7);
-        getline(cin, new_std.Lastname);
-        gotoxy(44, 8);
-        getline(cin, new_std.Gender);
-        gotoxy(48, 9);
-        getline(cin, new_std.DoB);
-        gotoxy(47, 10);
-        getline(cin, new_std.Social_Id);
-        gotoxy(45, 11);
-        getline(cin, new_std.password);
-        string class_path = schoolyear_path + "/classes/firstyear/" + name_Class + ".csv";
-        ifstream class_file;
-        class_file.open(class_path);
-        if (class_file.is_open()) {
-            int sl = count(class_file);  class_file.close();
+            string name_Class;
+            gotoxy(35, 4);
+            cout << "Class:";
+            gotoxy(43, 4);
+            getline(cin, name_Class);
+            string class_path = schoolyear_path + "/classes/firstyear/" + name_Class + ".csv";
+            ifstream class_file;
             class_file.open(class_path);
-            Student* DS = new Student[sl + 1];
-            int i = 0;
-            string temp;
-            string No;
-            string Id;
-            string Firstname;
-            string Lastname;
-            string Gender;
-            string DoB;
-            string Social_Id;
-            getline(class_file, temp);
-            while (!class_file.eof()) {
-                getline(class_file, No, ',');
-                DS[i].No = No;
-                getline(class_file, Id, ',');
-                DS[i].Id = Id;
-                getline(class_file, Firstname, ',');
-                DS[i].Firstname = Firstname;
-                getline(class_file, Lastname, ',');
-                DS[i].Lastname = Lastname;
-                getline(class_file, Gender, ',');
-                DS[i].Gender = Gender;
-                getline(class_file, DoB, ',');
-                DS[i].DoB = DoB;
-                getline(class_file, Social_Id, ',');
-                DS[i].Social_Id = Social_Id;
-                i++;
+            if (class_file.is_open()) {
+                int sl = count(class_path);  class_file.close();
+                class_file.open(class_path);
+                Student* DS = new Student[sl + 1];
+                int i = 0;
+                string temp;
+                string No;
+                string Id;
+                string Firstname;
+                string Lastname;
+                string Gender;
+                string DoB;
+                string Social_Id;
+                getline(class_file, temp);
+                while (!class_file.eof()) {
+                    getline(class_file, No, ',');
+                    DS[i].No = No;
+                    getline(class_file, Id, ',');
+                    DS[i].Id = Id;
+                    getline(class_file, Firstname, ',');
+                    DS[i].Firstname = Firstname;
+                    getline(class_file, Lastname, ',');
+                    DS[i].Lastname = Lastname;
+                    getline(class_file, Gender, ',');
+                    DS[i].Gender = Gender;
+                    getline(class_file, DoB, ',');
+                    DS[i].DoB = DoB;
+                    getline(class_file, Social_Id);
+                    DS[i].Social_Id = Social_Id;
+                    i++;
+                }
+                class_file.close();
+                Student new_std;
+        do {
+            system("cls");
+            gotoxy(35, 5);
+            cout << "ID:";
+            gotoxy(35, 6);
+            cout << "First name :";
+            gotoxy(35, 7);
+            cout << "Last name:";
+            gotoxy(35, 8);
+            cout << "Gender:";
+            gotoxy(35, 9);
+            cout << "Day of birth:";
+            gotoxy(35, 10);
+            cout << "Scocial ID:";
+            gotoxy(39, 5);
+            getline(cin, new_std.Id);
+            gotoxy(48, 6);
+            getline(cin, new_std.Firstname);
+            gotoxy(46, 7);
+            getline(cin, new_std.Lastname);
+            gotoxy(44, 8);
+            getline(cin, new_std.Gender);
+            gotoxy(48, 9);
+            getline(cin, new_std.DoB);
+            gotoxy(47, 10);
+            getline(cin, new_std.Social_Id);
+            if (check_repeat_student(new_std, DS, sl)) {
+                notify_box("This ID Student already exists");
+                system("pause");
             }
-            class_file.close();
+            else break;
+        } while (1);
             DS[sl] = new_std;
             sort_DS_Student(DS, sl + 1);
             ofstream class_file;
             class_file.open(class_path);
             if (class_file.is_open()) {
-                class_file << temp;
+                class_file << temp << "\n";
                 for (int i = 0; i < sl + 1; i++) {
-                    class_file << i + 1 << "," << DS[i].Id << "," << DS[i].Firstname << "," << DS[i].Lastname << "," << DS[i].Gender << "," << DS[i].DoB << "," << DS[i].Social_Id;
+                    class_file << i + 1 << "," << DS[i].Id << "," << DS[i].Firstname << "," << DS[i].Lastname << "," << DS[i].Gender << "," << DS[i].DoB << "," << DS[i].Social_Id << "\n";
                 }
                 class_file.close();
+                new_std.password = "12345678";
+                add_to_User(new_std);
             }
             else return 0;
             delete[] DS;
@@ -214,7 +251,7 @@ void Staff_lg() {
         system("pause");
         return ;
     }
-    int sl = count(staff);
+    int sl = count("./Data/Users/Staff.csv");
     staff.close();
     staff.open(path);
     Staff* DS = new Staff[sl];

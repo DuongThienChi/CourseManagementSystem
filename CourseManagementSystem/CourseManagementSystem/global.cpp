@@ -97,16 +97,21 @@ void thoatctrinh() {
 
     }
 }
-int count(ifstream& file) {
+int count(string path) {
+    ifstream file;
+    file.open(path);
     int count = 0;
-    string line;
-    getline(file, line);
-    while (file) {
+    if (file.is_open()) {
+        string line;
         getline(file, line);
-        count++;
+        while (file) {
+            getline(file, line);
+            count++;
+        }
+        count--;
+        file.close();
     }
-    count--;
-    file.close();
+    else notify_box("Can't open file");
     return count;
 }
 void changepass(Staff* staff_user, Student* std_user) {
