@@ -120,29 +120,15 @@ bool add_Student_to_Class() {
 			Student* DS = new Student[sl + 1];
 			int i = 0;
 			string temp;
-			string No;
-			string Id;
-			string Firstname;
-			string Lastname;
-			string Gender;
-			string DoB;
-			string Social_Id;
 			getline(class_file, temp);
 			while (i<sl) {
-				getline(class_file, No, ',');
-				DS[i].No = No;
-				getline(class_file, Id, ',');
-				DS[i].Id = Id;
-				getline(class_file, Firstname, ',');
-				DS[i].Firstname = Firstname;
-				getline(class_file, Lastname, ',');
-				DS[i].Lastname = Lastname;
-				getline(class_file, Gender, ',');
-				DS[i].Gender = Gender;
-				getline(class_file, DoB, ',');
-				DS[i].DoB = DoB;
-				getline(class_file, Social_Id);
-				DS[i].Social_Id = Social_Id;
+				getline(class_file, DS[i].No, ',');
+				getline(class_file, DS[i].Id, ',');
+				getline(class_file, DS[i].Firstname, ',');
+				getline(class_file, DS[i].Lastname, ',');
+				getline(class_file, DS[i].Gender, ',');
+				getline(class_file, DS[i].DoB, ',');
+				 getline(class_file, DS[i].Social_Id);
 				i++;
 			}
 			class_file.close();
@@ -492,6 +478,74 @@ bool update_course_information() {
 		notify_box("Can not open file!");
 		return 0;
 	}
+}
+bool Remove_student_frome_course() {
+	system("cls");
+	gotoxy(35,5);
+	cout << "Course ID:";
+	gotoxy(35,6);
+	cout << "Class name:";
+	gotoxy(35, 7);
+	cout << "Student ID:";
+	string id;
+	gotoxy(45, 5);
+	getline(cin, id);
+	gotoxy(46,6);
+	string classname;
+	getline(cin, classname);
+	gotoxy(46, 7);
+	string student_id;
+	getline(cin, student_id);
+	string path = semester_path + "staff/" + id + "-" + classname + ".csv";
+	int sl = count(path);
+	Student* DS = new Student[sl + 1];
+	ifstream student;
+	student.open(path);
+	if (!student.is_open()) {
+		cout << "Can't open file";
+		system("pause");
+		return 0;
+	}
+	else {
+		int i = 0;
+		string temp;
+		getline(student, temp);
+		while (!student.eof()) {
+			getline(student, DS[i].No, ',');
+			getline(student, DS[i].Id, ',');
+			getline(student, DS[i].Firstname, ',');
+			getline(student, DS[i].Lastname, ',');
+			getline(student, DS[i].Gender, ',');
+			getline(student, DS[i].DoB, ',');
+			getline(student, DS[i].Social_Id);
+			i++;
+		}
+		student.close();
+	}
+	for (int i = 0; i < sl; i++) {
+		if (DS[i].Id == student_id) {
+			for (int j = i; j < sl - 1;j++){
+				DS[j] = DS[j + 1];
+			}
+			sl--;
+			break;
+		}
+	}
+	ofstream f_course;
+	f_course.open(path);
+	if (f_course.is_open()) {
+		f_course << "No, Student ID, First name, Last name, Gender, Day of birth, Social ID" << "\n";
+		for (int i = 0; i < sl - 1; i++) {
+			f_course << i + 1 << "," << DS[i].Id << "," << DS[i].Firstname << "," << DS[i].Lastname << "," << DS[i].Gender << "," << DS[i].DoB << "," << DS[i].Social_Id << "\n";
+		}
+		f_course << sl<< "," << DS[sl - 1].Id << "," << DS[sl - 1].Firstname << "," << DS[sl - 1].Lastname << "," << DS[sl - 1].Gender << "," << DS[sl - 1].DoB << "," << DS[sl - 1].Social_Id;
+		f_course.close();
+		return 1;
+	}
+	else {
+		notify_box("Can not open file!");
+		return 0;
+	}
 
 }
 void Staff_lg() {
@@ -548,12 +602,12 @@ void Staff_lg() {
 		else break;
 		system("pause");
 	} while (1);
-	staff.close();
+	staff.close(); 
 	if (flag) {
-		char menu_staff[11][40] = { "1.Your profile", "2.Change the password","3.Create new School Year","4.Create new semester", "5.Quick input student to class","6.Quick input student to a course","7.Add a student to a class", "8.Add a course to a semester","9.View the list of courses ","10.Update course information","11.Log out"};
+		char menu_staff[12][40] = { "1.Your profile", "2.Change the password","3.Create new School Year","4.Create new semester", "5.Quick input student to class","6.Quick input student to a course","7.Add a student to a class", "8.Add a course to a semester","9.View the list of courses ","10.Update course information","11.Remove student form a course","12.Log out" };
 		do {
 			system("cls");
-			int choice = menu(menu_staff, 11, 40);
+			int choice = menu(menu_staff, 12, 40);
 			if (choice == 0)
 			{
 				system("cls");
@@ -601,6 +655,9 @@ void Staff_lg() {
 				if (update_course_information()) notify_box("Update successfull!");
 			}
 			else if (choice == 10) {
+				if (Remove_student_frome_course()) notify_box("Remove successful!");
+			}
+			else if (choice == 11) {
 				break;
 			}
 		} while (1);
