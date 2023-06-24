@@ -41,16 +41,15 @@ struct Staff {
     string password;
 };
 struct Semester {
-    int School_year;
-    Date start_date;
-    Date end_date;
+    string start_date;
+    string end_date;
 };
 struct Course {
     string course_id;
     string course_name;
     string teacher_name;
     string class_name;
-    int credits;
+    int credits = 0;
     int max_students = 50;
     string wDay;
     string session;
@@ -73,7 +72,8 @@ void getschoolyear_path();
 void getsemester_path();
 
 extern Date currentdate;
-extern const int  month_begin_a_schoolyear = 9;
-extern const int month_begin_semester[3] = { 9,3,7 };
+extern const int  month_begin_a_schoolyear;
+extern const int month_begin_semester[];
 extern string  schoolyear_path;
 extern string semester_path;
+extern Semester semester;
