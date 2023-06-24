@@ -16,6 +16,11 @@
 
 using namespace std;
 namespace fs = filesystem;
+struct Date {
+    int Day;
+    int Month;
+    int Year;
+};
 struct Student {
     string No;
     string Id;
@@ -35,10 +40,21 @@ struct Staff {
     string Social_Id;
     string password;
 };
-struct Current_Date {
-    int Day;
-    int Month;
-    int Year;
+struct Semester {
+    int School_year;
+    Date start_date;
+    Date end_date;
+};
+struct Course {
+    string course_id;
+    string course_name;
+    string teacher_name;
+    string class_name;
+    int credits;
+    int max_students = 50;
+    string wDay;
+    string session;
+    
 };
 void color(int color);
 void gotoxy(int x, int y);
@@ -53,6 +69,11 @@ void notify_box(string messg);
 bool dirExists(const std::string& dirName_in);
 void copyFolder(string from, string to);
 void load_Student(Student* &DS, string path);
+void getschoolyear_path();
+void getsemester_path();
 
-
-extern Current_Date currentdate;
+extern Date currentdate;
+extern const int  month_begin_a_schoolyear = 9;
+extern const int month_begin_semester[3] = { 9,3,7 };
+extern string  schoolyear_path;
+extern string semester_path;

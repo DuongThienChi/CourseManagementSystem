@@ -1,6 +1,6 @@
 #include "mylib.h"
 #include "student.cpp"
-Current_Date currentdate;
+Date currentdate;
 void color(int color) {
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
 }
@@ -179,6 +179,25 @@ void getcurrentDate() {
     currentdate.Year = 1900 + _tm.tm_year;
     currentdate.Month = 1 + _tm.tm_mon;
     currentdate.Day = _tm.tm_mday;
+    getschoolyear_path();
+    getsemester_path();
+}
+void getschoolyear_path() {
+    if(currentdate.Month>= month_begin_a_schoolyear)
+        schoolyear_path = "./Data/" + to_string(currentdate.Year) + "-" + to_string(currentdate.Year + 1);
+    else 
+        schoolyear_path = "./Data/" + to_string(currentdate.Year - 1) + "-" + to_string(currentdate.Year);
+}
+void getsemester_path() {
+    int i = 0;
+    for (i; i < 3; i++) {
+        if (currentdate.Month == month_begin_semester[i])
+        {
+            i += 1;
+            break;
+        }
+    }
+    semester_path = schoolyear_path + "/semester " + to_string(i) + "/";
 }
 bool dirExists(const std::string& dirName_in)
 {
