@@ -30,6 +30,8 @@ struct Student {
     string DoB;
     string Social_Id;
     string password;
+    float GPA = 0;
+    float overallGPA = 0;
 };
 struct Staff {
     string No;
@@ -44,6 +46,10 @@ struct Semester {
     string start_date;
     string end_date;
 };
+struct Class {
+    string className;
+    fs::path path;
+};
 struct Course {
     string course_id;
     string course_name;
@@ -53,6 +59,10 @@ struct Course {
     int max_students = 50;
     string wDay;
     string session;
+    float MidtermMark = 0;
+    float FinalMark = 0;
+    float OtherMark = 0;
+    float TotalMark = 0;
     
 };
 void color(int color);
