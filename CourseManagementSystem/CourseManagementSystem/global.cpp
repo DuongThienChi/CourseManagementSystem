@@ -99,6 +99,36 @@ void thoatctrinh() {
 
 	}
 }
+void get_list_courses(string path, Course*& DS) {
+	ifstream list_courses;
+	list_courses.open(path);
+	if (list_courses.is_open()) {
+		string temp;
+		getline(list_courses, temp);
+		int sl = count(path);
+		DS = new Course[sl];
+		int i = 0;
+		while (!list_courses.eof()) {
+			getline(list_courses, DS[i].course_id, ',');
+			getline(list_courses, DS[i].course_name, ',');
+			getline(list_courses, DS[i].class_name, ',');
+			getline(list_courses, DS[i].teacher_name, ',');
+			string credits;
+			getline(list_courses, credits, ',');
+			DS[i].credits = stoi(credits);
+			string maximum_students;
+			getline(list_courses, maximum_students, ',');
+			DS[i].max_students = stoi(maximum_students);
+			getline(list_courses, DS[i].wDay, ',');
+			getline(list_courses, DS[i].session);
+			i++;
+		}
+	}
+	else {
+		notify_box("Can't open file!");
+		return;
+	}
+}
 int count(string path) {
 	ifstream file;
 	file.open(path);

@@ -40,7 +40,7 @@ void view_list_course_study(Student std) {
 		getline(f_course, temp);
 		int i = 0;
 		system("cls");
-		cout << left << setw(9) << "ID" << setw(24) << "Name" << setw(12) << "Class" << setw(24) << "Teacher" << setw(9) << "Credits" << setw(17) << "Maximum students " << setw(10) << "Day" << setw(7) << "Session" << endl;
+		cout << left << setw(3)<<"No"<<setw(9) << "ID" << setw(24) << "Name" << setw(12) << "Class" << setw(24) << "Teacher" << setw(9) << "Credits" << setw(17) << "Maximum students " << setw(10) << "Day" << setw(7) << "Session" << endl;
 		while (i < number_courses_study) {
 			Course course;
 			string No;
@@ -61,14 +61,58 @@ void view_list_course_study(Student std) {
 			course.TotalMark = stof(TotalMark);
 			for (int i = 0; i < number_courses; i++) {
 				if (DS_Courses[i].course_id == course.course_id && DS_Courses[i].class_name == course.class_name) {
-					cout << left << setw(9) << DS_Courses[i].course_id << setw(24) << DS_Courses[i].course_name << setw(12) << DS_Courses[i].class_name << setw(24) << DS_Courses[i].teacher_name << setw(9) << DS_Courses[i].credits << setw(17) << DS_Courses[i].max_students << setw(10) << DS_Courses[i].wDay << setw(7) << DS_Courses[i].session << endl;
+					cout << left << setw(3)<<i+1<<setw(9) << DS_Courses[i].course_id << setw(24) << DS_Courses[i].course_name << setw(12) << DS_Courses[i].class_name << setw(24) << DS_Courses[i].teacher_name << setw(9) << DS_Courses[i].credits << setw(17) << DS_Courses[i].max_students << setw(10) << DS_Courses[i].wDay << setw(7) << DS_Courses[i].session << endl;
 					break;
 				}
 			}
 			i++;
 		}
+		system("pause");
 	}
-
+}
+void view_scoreboard(Student std) {
+	string path = semester_path + "student/" + std.Id + "-scoreboard.csv";
+	string path_course = semester_path + "staff/courses.csv";
+	int number_courses = count(semester_path + "staff/courses.csv");
+	int number_courses_study = count(path);
+	Course* DS_Courses = NULL;
+	get_list_courses(path_course, DS_Courses);
+	ifstream f_course;
+	f_course.open(path);
+	if (f_course.is_open()) {
+		string temp;
+		getline(f_course, temp);
+		int i = 0;
+		system("cls");
+		cout << left << setw(3) << "No" << setw(10) << "Course ID" << setw(24) << "Course Name"<<setw(12)<<"Class" << setw(13) << "Midterm Mark" << setw(11) << "Final Mark" << setw(12) << "Other Mark" << setw(11) << "Final Mark" << "\n";
+		while (i < number_courses_study) {
+			Course course;
+			string No;
+			getline(f_course, No, ',');
+			getline(f_course, course.course_id, ',');
+			getline(f_course, course.class_name, ',');
+			string MidtermMark;
+			getline(f_course, MidtermMark, ',');
+			course.MidtermMark = stof(MidtermMark);
+			string FinalMark;
+			getline(f_course, FinalMark, ',');
+			course.FinalMark = stof(FinalMark);
+			string OtherMark;
+			getline(f_course, OtherMark, ',');
+			course.OtherMark = stof(OtherMark);
+			string TotalMark;
+			getline(f_course, TotalMark);
+			course.TotalMark = stof(TotalMark);
+			for (int i = 0; i < number_courses; i++) {
+				if (DS_Courses[i].course_id == course.course_id && DS_Courses[i].class_name == course.class_name) {
+					cout << left <<setw(3)<<i+1 << setw(10) << DS_Courses[i].course_id << setw(24) << DS_Courses[i].course_name << setw(12) << DS_Courses[i].class_name << setw(13) << course.MidtermMark << setw(11) << course.FinalMark << setw(12) << course.OtherMark << setw(11) << course.TotalMark << endl;
+					break;
+				}
+			}
+			i++;
+		}
+		system("pause");
+	}
 }
 void Student_lg() {
 	string path = "./Data/Users/Student.csv";
@@ -150,7 +194,7 @@ void Student_lg() {
 			}
 			else if (choice == 3)
 			{
-				cout << 4;
+				view_scoreboard((*std_user));
 			}
 			else if (choice == 4) {
 				break;
