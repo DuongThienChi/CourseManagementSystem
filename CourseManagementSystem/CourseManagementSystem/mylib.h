@@ -63,7 +63,7 @@ struct Course {
     float FinalMark = 0;
     float OtherMark = 0;
     float TotalMark = 0;
-    
+
 };
 void color(int color);
 void gotoxy(int x, int y);

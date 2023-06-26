@@ -26,6 +26,50 @@ void load_Student(Student*& DS, string path) {
 		student.close();
 	}
 }
+void view_list_course_study(Student std) {
+	string path = semester_path + "student/" + std.Id + "-scoreboard.csv";
+	string path_course = semester_path + "staff/courses.csv";
+	int number_courses = count(semester_path + "staff/courses.csv");
+	int number_courses_study = count(path);
+	Course* DS_Courses = NULL;
+	get_list_courses(path_course, DS_Courses);
+	ifstream f_course;
+	f_course.open(path);
+	if (f_course.is_open()) {
+		string temp;
+		getline(f_course, temp);
+		int i = 0;
+		system("cls");
+		cout << left << setw(9) << "ID" << setw(24) << "Name" << setw(12) << "Class" << setw(24) << "Teacher" << setw(9) << "Credits" << setw(17) << "Maximum students " << setw(10) << "Day" << setw(7) << "Session" << endl;
+		while (i < number_courses_study) {
+			Course course;
+			string No;
+			getline(f_course, No, ',');
+			getline(f_course, course.course_id, ',');
+			getline(f_course, course.class_name, ',');
+			string MidtermMark;
+			getline(f_course, MidtermMark, ',');
+			course.MidtermMark = stof(MidtermMark);
+			string FinalMark;
+			getline(f_course, FinalMark, ',');
+			course.FinalMark = stof(FinalMark);
+			string OtherMark;
+			getline(f_course, OtherMark, ',');
+			course.OtherMark = stof(OtherMark);
+			string TotalMark;
+			getline(f_course, TotalMark);
+			course.TotalMark = stof(TotalMark);
+			for (int i = 0; i < number_courses; i++) {
+				if (DS_Courses[i].course_id == course.course_id && DS_Courses[i].class_name == course.class_name) {
+					cout << left << setw(9) << DS_Courses[i].course_id << setw(24) << DS_Courses[i].course_name << setw(12) << DS_Courses[i].class_name << setw(24) << DS_Courses[i].teacher_name << setw(9) << DS_Courses[i].credits << setw(17) << DS_Courses[i].max_students << setw(10) << DS_Courses[i].wDay << setw(7) << DS_Courses[i].session << endl;
+					break;
+				}
+			}
+			i++;
+		}
+	}
+
+}
 void Student_lg() {
 	string path = "./Data/Users/Student.csv";
 	int sl;
@@ -73,7 +117,7 @@ void Student_lg() {
 	} while (1);
 	if (flag) {
 
-		char menu_student[5][40] = { "1.Your profile", "2.Change the password","3.View list of your courses", "4.View your scoreboard","5.Log out" };
+		char menu_student[5][40] = { "1.Your profile", "2.Change the password","3.View list of your courses", "4.View your scoreboard","5.Log out"};
 		do {
 			system("cls");
 			int choice = menu(menu_student, 5, 40);
@@ -102,7 +146,7 @@ void Student_lg() {
 
 			}
 			else if (choice == 2) {
-				cout << 3;
+				view_list_course_study((*std_user));
 			}
 			else if (choice == 3)
 			{
