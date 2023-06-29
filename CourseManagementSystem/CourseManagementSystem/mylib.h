@@ -78,7 +78,9 @@ void notify_box(string messg);
 bool dirExists(const std::string& dirName_in);
 void copyFolder(string from, string to);
 void get_list_courses(string path, Course*& DS);
-void load_Student(Student* &DS, string path);
+void load_Student(Student* &DS, string path,bool user);
+void calculate_GPA(Student& a);
+void calculate_OverallGPA(Student& a);
 void getschoolyear_path();
 void getsemester_path();
 
@@ -88,3 +90,4 @@ extern const int month_begin_semester[];
 extern string  schoolyear_path;
 extern string semester_path;
 extern Semester semester;
+extern bool Publish_Scoreboard;

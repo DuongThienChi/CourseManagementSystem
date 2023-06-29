@@ -1,6 +1,6 @@
 
 #include "student.h"
-void load_Student(Student*& DS, string path) {
+void load_Student(Student*& DS, string path,bool user) {
 	ifstream student;
 	student.open(path);
 	if (!student.is_open()) {
@@ -12,15 +12,21 @@ void load_Student(Student*& DS, string path) {
 		int i = 0;
 		string temp;
 		getline(student, temp);
-		while (!student.eof()) {
+		int sl = count(path);
+		while (i<sl) {
 			getline(student, DS[i].No, ',');
 			getline(student, DS[i].Id, ',');
 			getline(student, DS[i].Firstname, ',');
 			getline(student, DS[i].Lastname, ',');
 			getline(student, DS[i].Gender, ',');
 			getline(student, DS[i].DoB, ',');
-			getline(student, DS[i].Social_Id, ',');
-			getline(student, DS[i].password);
+			if (user == 1) {
+				getline(student, DS[i].Social_Id, ',');
+				getline(student, DS[i].password);
+			}
+			else {
+				getline(student, DS[i].Social_Id);
+			}
 			i++;
 		}
 		student.close();
@@ -59,9 +65,9 @@ void view_list_course_study(Student std) {
 			string TotalMark;
 			getline(f_course, TotalMark);
 			course.TotalMark = stof(TotalMark);
-			for (int i = 0; i < number_courses; i++) {
-				if (DS_Courses[i].course_id == course.course_id && DS_Courses[i].class_name == course.class_name) {
-					cout << left << setw(3)<<i+1<<setw(9) << DS_Courses[i].course_id << setw(24) << DS_Courses[i].course_name << setw(12) << DS_Courses[i].class_name << setw(24) << DS_Courses[i].teacher_name << setw(9) << DS_Courses[i].credits << setw(17) << DS_Courses[i].max_students << setw(10) << DS_Courses[i].wDay << setw(7) << DS_Courses[i].session << endl;
+			for (int j= 0; j < number_courses; j++) {
+				if (DS_Courses[j].course_id == course.course_id && DS_Courses[j].class_name == course.class_name) {
+					cout << left << setw(3)<<i+1<<setw(9) << DS_Courses[j].course_id << setw(24) << DS_Courses[j].course_name << setw(12) << DS_Courses[j].class_name << setw(24) << DS_Courses[j].teacher_name << setw(9) << DS_Courses[j].credits << setw(17) << DS_Courses[j].max_students << setw(10) << DS_Courses[j].wDay << setw(7) << DS_Courses[j].session << endl;
 					break;
 				}
 			}
@@ -103,9 +109,9 @@ void view_scoreboard(Student std) {
 			string TotalMark;
 			getline(f_course, TotalMark);
 			course.TotalMark = stof(TotalMark);
-			for (int i = 0; i < number_courses; i++) {
-				if (DS_Courses[i].course_id == course.course_id && DS_Courses[i].class_name == course.class_name) {
-					cout << left <<setw(3)<<i+1 << setw(10) << DS_Courses[i].course_id << setw(24) << DS_Courses[i].course_name << setw(12) << DS_Courses[i].class_name << setw(13) << course.MidtermMark << setw(11) << course.FinalMark << setw(12) << course.OtherMark << setw(11) << course.TotalMark << endl;
+			for (int j = 0; j < number_courses; j++) {
+				if (DS_Courses[j].course_id == course.course_id && DS_Courses[j].class_name == course.class_name) {
+					cout << left <<setw(3)<<i+1 << setw(10) << DS_Courses[j].course_id << setw(24) << DS_Courses[j].course_name << setw(12) << DS_Courses[j].class_name << setw(13) << course.MidtermMark << setw(11) << course.FinalMark << setw(12) << course.OtherMark << setw(11) << course.TotalMark << endl;
 					break;
 				}
 			}
@@ -129,7 +135,7 @@ void Student_lg() {
 		student.close();
 	}
 	Student* DS = new Student[sl + 1];
-	load_Student(DS, path);
+	load_Student(DS, path,1);
 	string username;
 	string pass;
 	cout << "Login as Student";

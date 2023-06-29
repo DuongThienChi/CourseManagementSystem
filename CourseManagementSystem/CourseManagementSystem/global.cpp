@@ -129,6 +129,88 @@ void get_list_courses(string path, Course*& DS) {
 		return;
 	}
 }
+void calculate_GPA(Student& a) {
+	string scoreboard_path = semester_path + "student/" + a.Id + "-scoreboard.csv";
+	float GPA = 0;
+	Course* DS_course = NULL;
+	string path_course = semester_path + "staff/courses.csv";
+	int number_courses = count(path_course);
+	int number_courses_study = count(scoreboard_path);
+	Course* DS_Courses_study = new Course[number_courses_study];
+	get_list_courses(path_course, DS_course);
+	ifstream f_course;
+	f_course.open(scoreboard_path);
+	if (f_course.is_open()) {
+		string temp;
+		getline(f_course, temp);
+		int i = 0;
+		while (i < number_courses_study) {
+			Course course;
+			string No;
+			getline(f_course, No, ',');
+			getline(f_course, course.course_id, ',');
+			getline(f_course, course.class_name, ',');
+			string MidtermMark;
+			getline(f_course, MidtermMark, ',');
+			course.MidtermMark = stof(MidtermMark);
+			string FinalMark;
+			getline(f_course, FinalMark, ',');
+			course.FinalMark = stof(FinalMark);
+			string OtherMark;
+			getline(f_course, OtherMark, ',');
+			course.OtherMark = stof(OtherMark);
+			string TotalMark;
+			getline(f_course, TotalMark);
+			course.TotalMark = stof(TotalMark);
+			for (int j = 0; j < number_courses; j++) {
+				if (DS_course[j].course_id == course.course_id && DS_course[j].class_name == course.class_name) {
+					DS_Courses_study[i].course_id = course.course_id;
+					DS_Courses_study[i].credits = DS_course[j].credits;
+					DS_Courses_study[i].TotalMark = course.TotalMark;
+					break;
+				}
+			}
+			i++;
+		}
+		float Sum_TotalMark = 0;
+		int Sum_creadits = 0;
+		for (int i = 0; i < number_courses_study; i++) {
+			Sum_TotalMark += DS_Courses_study[i].TotalMark * DS_Courses_study[i].credits;
+			Sum_creadits+= DS_Courses_study[i].credits;
+		}
+		GPA = Sum_TotalMark / Sum_creadits;
+		a.GPA = GPA;
+	}
+	else {
+		notify_box("Can't open file scoreboard!");
+		return;
+	}
+
+}
+void calculate_OverallGPA(Student& a) {
+	string overallGPA_path = "./Data/OverallGPA/" + a.Id + "-overallGPA.bin";
+	calculate_GPA(a);
+	ifstream fin(overallGPA_path);
+	float overall_GPA = 0;
+	if (fin.is_open()) {
+		fin >> overall_GPA;
+		if (overall_GPA == 0) {
+			overall_GPA = a.GPA;
+		}
+		else {
+			overall_GPA = (overall_GPA + a.GPA) / 2.0;
+		}
+		a.overallGPA = overall_GPA;
+		fin.close();
+		ofstream fout(overallGPA_path);
+		fout << a.overallGPA;
+		fout.close();
+	}
+	else {
+		notify_box("Can't open file overall GPA!");
+		return;
+	}
+}
 int count(string path) {
 	ifstream file;
 	file.open(path);

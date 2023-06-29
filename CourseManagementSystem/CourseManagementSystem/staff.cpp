@@ -3,6 +3,37 @@
 const int  month_begin_a_schoolyear = 9;
 const int month_begin_semester[] = { 9,3,7 };
 Semester semester;;
+//Begin new school year
+bool create_School_Year() {
+	if (currentdate.Month != month_begin_a_schoolyear) {
+		string mess = { "The new school year hasn't started yet!" };
+		notify_box(mess);
+		return 0;
+	}
+	else {
+		string prevSchoolyear_path = "./Data/" + to_string(currentdate.Year - 1) + "-" + to_string(currentdate.Year);
+		string classes_path = schoolyear_path + "/classes";
+		if (dirExists(prevSchoolyear_path)) {
+			fs::create_directories(classes_path);
+			prevSchoolyear_path += "/classes";
+			copyFolder(prevSchoolyear_path, classes_path);
+			fs::remove_all(classes_path + "/finalyear");
+			fs::rename(classes_path + "/thirdyear", classes_path + "/finalyear");
+			fs::rename(classes_path + "/secondyear", classes_path + "/thirdyear");
+			fs::rename(classes_path + "/firstyear", classes_path + "/secondyear");
+			fs::create_directories(classes_path + "/firstyear");
+			return 1;
+		}
+		else {
+			fs::create_directories(classes_path + "/firstyear");
+			fs::create_directories(classes_path + "/secondyear");
+			fs::create_directories(classes_path + "/thirdyear");
+			fs::create_directories(classes_path + "/finalyear");
+			return 1;
+		}
+
+	}
+}
 void add_to_User(Student a) {
 	fstream user;
 	user.open("./Data/Users/Student.csv");
@@ -14,7 +45,7 @@ void add_to_User(Student a) {
 	else {
 		int sl = count("./Data/Users/Student.csv");
 		Student* DS = new Student[sl + 1];
-		load_Student(DS, "./Data/Users/Student.csv");
+		load_Student(DS, "./Data/Users/Student.csv", 1);
 		DS[sl] = a;
 		user << "No, Student ID, First name, Last name, Gender, Day of birth, Social ID, Password" << "\n";
 		for (int i = 0; i < sl + 1; i++) {
@@ -194,135 +225,7 @@ bool add_Student_to_Class() {
 		return 1;
 	}
 }
-int count_number_classes() {
-	string path = schoolyear_path + "/classes/";
-	string extension(".csv");
-	int k = 0;
-	for (auto& p : fs::recursive_directory_iterator(path))
-	{
-		if (p.path().extension() == extension) {
-			k++;
-		}
-	}
-	return k;
-}
-bool load_list_classes(Class*& ds) {
-	string path = schoolyear_path + "/classes/";
-	string extension(".csv");
-	int k = 0;
-	for (auto& p : fs::recursive_directory_iterator(path))
-	{
-		if (p.path().extension() == extension) {
-			Class c;
-			c.className = p.path().stem().string();
-			c.path = p.path();
-			ds[k] = c;
-			k++;
-		}
-	}
-	return 1;
-}
-void view_list_of_classes() {
-	int x = 35, y = 5;
-	Class* ds = new Class[count_number_classes()];
-	load_list_classes(ds);
-	system("cls");
-	gotoxy(x, y);
-	cout << left << setw(4) << "STT" << setw(6) << "Class" << endl;
-	for (int i = 0; i < count_number_classes(); i++) {
-		gotoxy(35, 5 + i + 1);
-		cout << left << setw(4) << i + 1 << setw(6) << ds[i].className << endl;
-	}
-	system("pause");
-}
-void view_list_of_student_in_class() {
-	system("cls");
-	gotoxy(35, 5);
-	cout << "Class name:";
-	string class_name;
-	getline(cin, class_name);
-	transform(class_name.begin(), class_name.end(), class_name.begin(), ::toupper);
-	Class* ds = new Class[count_number_classes()];
-	load_list_classes(ds);
-	for (int i = 0; i < count_number_classes(); i++) {
-		if (ds[i].className == class_name) {
-			string path_string = { ds[i].path.u8string() };
-			int sl = count(path_string);
-			Student* DS_hocsinh = new Student[sl];
-			ifstream student;
-			student.open(path_string);
-			if (!student.is_open()) {
-				cout << "Can't open file";
-				system("pause");
-				return;
-			}
-			else {
-				int i = 0;
-				string temp;
-				getline(student, temp);
-				while (i < sl) {
-					getline(student, DS_hocsinh[i].No, ',');
-					getline(student, DS_hocsinh[i].Id, ',');
-					getline(student, DS_hocsinh[i].Firstname, ',');
-					getline(student, DS_hocsinh[i].Lastname, ',');
-					getline(student, DS_hocsinh[i].Gender, ',');
-					getline(student, DS_hocsinh[i].DoB, ',');
-					getline(student, DS_hocsinh[i].Social_Id);
-					i++;
-				}
-				student.close();
-			}
-			system("cls");
-			cout << left << setw(3) << "No" << setw(11) << "Student ID" << setw(17) << "First name" << setw(10) << "Last name" << setw(7) << "Gender" << setw(9) << "DoB" << setw(10) << "Social ID" << "\n";
-			for (int i = 0; i < sl; i++) {
-				cout << left << setw(3) << i + 1 << setw(11) << DS_hocsinh->Id << setw(17) << DS_hocsinh->Firstname << setw(10) << DS_hocsinh->Lastname << setw(7) << DS_hocsinh->Gender << setw(9) << DS_hocsinh->DoB << setw(10) << DS_hocsinh->Social_Id << "\n";
-			}
-			system("pause");
-			break;
-		}
-
-	}
-	notify_box("Class does not exits!");
-
-
-}
-bool create_School_Year() {
-	if (currentdate.Month != month_begin_a_schoolyear) {
-		string mess = { "The new school year hasn't started yet!" };
-		notify_box(mess);
-		return 0;
-	}
-	else {
-		string prevSchoolyear_path = "./Data/" + to_string(currentdate.Year - 1) + "-" + to_string(currentdate.Year);
-		string classes_path = schoolyear_path + "/classes/firstyear/";
-		/*ofstream fout("./data/schoolyear.dat");
-		fout << currentSchoolYear << endl;
-		fout << dateToStr(currentDate) << endl;
-		fout << "9/" + to_string(lastYear + 1);
-		fout.close();*/
-		if (dirExists(prevSchoolyear_path)) {
-			fs::create_directories(classes_path);
-			/* ofstream(schoolYearPath + "/semester.dat");*/
-			prevSchoolyear_path += "/classes";
-			copyFolder(prevSchoolyear_path, classes_path);
-			fs::remove_all(classes_path + "/finalyear");
-			fs::rename(classes_path + "/thirdyear", classes_path + "/finalyear");
-			fs::rename(classes_path + "/secondyear", classes_path + "/thirdyear");
-			fs::rename(classes_path + "/firstyear", classes_path + "/secondyear");
-			fs::create_directories(classes_path + "/firstyear");
-			return 1;
-		}
-		else {
-			//   ofstream(schoolYearPath + "/semester.dat");
-			fs::create_directories(classes_path + "/firstyear");
-			fs::create_directories(classes_path + "/secondyear");
-			fs::create_directories(classes_path + "/thirdyear");
-			fs::create_directories(classes_path + "/finalyear");
-			return 1;
-		}
-
-	}
-}
+//Begin new semester
 bool createSemester() {
 	/* if (currentdate.Month != month_begin_semester[0] || currentdate.Month != month_begin_semester[1] || currentdate.Month != month_begin_semester[2]) {
 		 string mess = { "Can not create a new semester in this time!" };
@@ -415,7 +318,177 @@ bool input_course(Course& new_course) {
 	} while (1);
 	return 1;
 }
+int  count_number_classes() {
+	string path = schoolyear_path + "/classes/";
+	string extension(".csv");
+	int k = 0;
+	for (auto& p : fs::recursive_directory_iterator(path))
+	{
+		if (p.path().extension() == extension) {
+			k++;
+		}
+	}
+	return k;
+}
+bool load_list_classes(Class*& ds) {
+	string path = schoolyear_path + "/classes/";
+	string extension(".csv");
+	int k = 0;
+	for (auto& p : fs::recursive_directory_iterator(path))
+	{
+		if (p.path().extension() == extension) {
+			Class c;
+			c.className = p.path().stem().string();
+			c.path = p.path();
+			ds[k] = c;
+			k++;
+		}
+	}
+	return 1;
+}
+void view_list_of_classes() {
+	int x = 35, y = 5;
+	Class* ds = new Class[count_number_classes()];
+	load_list_classes(ds);
+	system("cls");
+	gotoxy(x, y);
+	cout << left << setw(4) << "STT" << setw(6) << "Class" << endl;
+	for (int i = 0; i < count_number_classes(); i++) {
+		gotoxy(35, 5 + i + 1);
+		cout << left << setw(4) << i + 1 << setw(6) << ds[i].className << endl;
+	}
+	system("pause");
+}
+void view_list_of_student_in_class() {
+	system("cls");
+	gotoxy(35, 5);
+	cout << "Class name:";
+	string class_name;
+	getline(cin, class_name);
+	transform(class_name.begin(), class_name.end(), class_name.begin(), ::toupper);
+	Class* ds = new Class[count_number_classes()];
+	load_list_classes(ds);
+	bool class_exits = false;
+	for (int i = 0; i < count_number_classes(); i++) {
+		if (ds[i].className == class_name) {
+			class_exits = true;
+			string path_string = { ds[i].path.u8string() };
+			int sl = count(path_string);
+			Student* DS_student = new Student[sl];
+			ifstream student;
+			student.open(path_string);
+			if (!student.is_open()) {
+				cout << "Can't open file";
+				system("pause");
+				return;
+			}
+			else {
+				int i = 0;
+				string temp;
+				getline(student, temp);
+				while (i < sl) {
+					getline(student, DS_student[i].No, ',');
+					getline(student, DS_student[i].Id, ',');
+					getline(student, DS_student[i].Firstname, ',');
+					getline(student, DS_student[i].Lastname, ',');
+					getline(student, DS_student[i].Gender, ',');
+					getline(student, DS_student[i].DoB, ',');
+					getline(student, DS_student[i].Social_Id);
+					i++;
+				}
+				student.close();
+			}
+			system("cls");
+			cout << left << setw(3) << "No" << setw(11) << "Student ID" << setw(17) << "First name" << setw(10) << "Last name" << setw(7) << "Gender" << setw(9) << "DoB" << setw(10) << "Social ID" << "\n";
+			for (int i = 0; i < sl; i++) {
+				cout << left << setw(3) << i + 1 << setw(11) << DS_student[i].Id << setw(17) << DS_student[i].Firstname << setw(10) << DS_student[i].Lastname << setw(7) << DS_student[i].Gender << setw(9) << DS_student[i].DoB << setw(10) << DS_student[i].Social_Id << "\n";
+			}
+			system("pause");
+			break;
+		}
 
+	}
+	if(class_exits==false)
+	   notify_box("Class does not exits!");
+}
+
+void save_scoreboard_student(Student student, Course course) {
+	fstream student_scoreboard;
+	student_scoreboard.open(semester_path + "student/" + student.Id + "-scoreboard.csv");
+	if (student_scoreboard.is_open()) {
+			int i = 0;
+			int sl = count(semester_path + "student/" + student.Id + "-scoreboard.csv");
+			if (sl > 0) {
+				Course* ds = new Course[sl];
+				string temp;
+				bool flag = false;
+				getline(student_scoreboard, temp);
+				while (i < sl) {
+					string no;
+					getline(student_scoreboard, no, ',');
+					getline(student_scoreboard, ds[i].course_id, ',');
+					getline(student_scoreboard, ds[i].class_name, ',');
+					string MidtermMark;
+					getline(student_scoreboard, MidtermMark, ',');
+					ds[i].MidtermMark = stof(MidtermMark);
+					string FinalMark;
+					getline(student_scoreboard, FinalMark, ',');
+					ds[i].FinalMark = stof(FinalMark);
+					string OtherMark;
+					getline(student_scoreboard, OtherMark, ',');
+					ds[i].OtherMark = stof(OtherMark);
+					string TotalMark;
+					getline(student_scoreboard, TotalMark);
+					ds[i].TotalMark = stof(TotalMark);
+					i++;
+				}
+				for (int i = 0; i < sl; i++) {
+					if (course.course_id == ds[i].course_id)
+					{
+						ds[i] = course;
+						flag = true;
+						break;
+					}
+				}
+				if (flag) {
+					student_scoreboard.close();
+					ofstream new_scoreboard;
+					new_scoreboard.open(semester_path + "student/" + student.Id + "-scoreboard.csv");
+					if (new_scoreboard.is_open()) {
+						new_scoreboard << temp << endl;
+						for (int i = 0; i < sl - 1; i++) {
+							new_scoreboard <<i+1 <<","<< ds[i].course_id << "," << ds[i].class_name << "," << ds[i].MidtermMark << "," << ds[i].FinalMark << "," << ds[i].OtherMark << "," << ds[i].TotalMark << "\n";
+						}
+						sl = (sl == 1) ? 1 : sl - 1;
+					    new_scoreboard << sl << "," << ds[sl-1].course_id << "," << ds[sl-1].class_name << "," << ds[sl-1].MidtermMark << "," << ds[sl-1].FinalMark << "," << ds[sl-1].OtherMark << "," << ds[sl-1].TotalMark;
+						new_scoreboard.close();
+					}
+					else {
+						notify_box("Can't open file!");
+						return;
+					}
+					
+				}
+				else {
+					student_scoreboard.seekp(0, ios::end);
+					student_scoreboard << i + 1 << "," << course.course_id << "," << course.class_name << "," << course.MidtermMark << "," << course.FinalMark<< "," <<course.OtherMark << "," << course.TotalMark;
+					student_scoreboard.close();
+					return;
+				}
+			}
+			else {
+				string temp;
+				getline(student_scoreboard, temp);
+				student_scoreboard << 1 << "," << course.course_id << "," << course.class_name << "," << course.MidtermMark << "," << course.FinalMark << "," << course.OtherMark << "," << course.TotalMark;
+				student_scoreboard.close();
+				return;
+			}
+	}
+	else {
+		notify_box("Can't open file!");
+		return;
+	}
+}
 bool add_Course_to_Semester() {
 	/* if (currentdate.Month != month_begin_semester[0] || currentdate.Month != month_begin_semester[1] || currentdate.Month != month_begin_semester[2]) {
 		 string mess = { "Can not add a new course in this time!" };
@@ -478,12 +551,7 @@ bool Quick_Input_student_to_course() {
 	}
 	else {
 		string source_file = link;
-		/* if (currentdate.Month != month_begin_semester[0] || currentdate.Month != month_begin_semester[1] || currentdate.Month != month_begin_semester[2]) {
-		string mess = { "Can not add a new course in this time!" };
-		notify_box(mess);
-		return 0;
-		 }
-		else {*/
+		
 		string destination_file = semester_path + "staff/" + id + "-" + classname + ".csv";
 		/*Xu li sao chep du lieu */
 		ifstream sfile;
@@ -504,7 +572,15 @@ bool Quick_Input_student_to_course() {
 		}
 		list_student.close();
 		return 1;
-		// }
+	}
+	int sl = count(link);
+	Student* DS_student = new Student[sl];
+	load_Student(DS_student, link, 0);
+	Course course;
+	course.course_id = id;
+	course.class_name = classname;
+	for (int i = 0; i < sl; i++) {
+		save_scoreboard_student(DS_student[i], course);
 	}
 }
 void view_list_courses() {
@@ -631,11 +707,57 @@ bool Remove_student_frome_course() {
 	ofstream f_course;
 	f_course.open(path);
 	if (f_course.is_open()) {
-		f_course << "No, Student ID, First name, Last name, Gender, Day of birth, Social ID" << "\n";
+		f_course << "No,Student ID,First name,Last name,Gender,Day of birth,Social ID" << "\n";
 		for (int i = 0; i < sl - 1; i++) {
 			f_course << i + 1 << "," << DS[i].Id << "," << DS[i].Firstname << "," << DS[i].Lastname << "," << DS[i].Gender << "," << DS[i].DoB << "," << DS[i].Social_Id << "\n";
 		}
 		f_course << sl << "," << DS[sl - 1].Id << "," << DS[sl - 1].Firstname << "," << DS[sl - 1].Lastname << "," << DS[sl - 1].Gender << "," << DS[sl - 1].DoB << "," << DS[sl - 1].Social_Id;
+		f_course.close();
+		return 1;
+	}
+	else {
+		notify_box("Can not open file!");
+		return 0;
+	}
+
+}
+bool Delete_a_course() {
+	system("cls");
+	gotoxy(37, 5);
+	cout << "DELETE A COURSE";
+	gotoxy(35, 6);
+	cout << "Course ID:";
+	gotoxy(35, 7);
+	cout << "Class:";
+	gotoxy(45, 6);
+	string course_id;
+	getline(cin, course_id);
+	gotoxy(41, 7);
+	string class_name;
+	getline(cin, class_name);
+	int sl = count(semester_path + "staff/courses.csv");
+	Course* DS_course = new Course[sl];
+	get_list_courses(semester_path + "staff/courses.csv",DS_course);
+	for (int i = 0; i < sl; i++) {
+		if (DS_course[i].course_id == course_id && DS_course[i].class_name == class_name) {
+			if (i != sl - 1) {
+				for (int j = i; j < sl - 1; j++) {
+					DS_course[j] = DS_course[j + 1];
+				}
+				sl--;
+				break;
+			}
+			else sl--;
+		}
+	}
+	ofstream f_course;
+	f_course.open(semester_path + "staff/courses.csv");
+	if (f_course.is_open()) {
+		f_course << "ID,Course name,Class name,Teacher name,Number of credits,Maximum number of students,Day of week,Session" << "\n";
+		for (int i = 0; i < sl - 1; i++) {
+			f_course << i + 1 << "," << DS_course[i].course_id << "," << DS_course[i].course_name << "," << DS_course[i].class_name << "," << DS_course[i].teacher_name << "," << DS_course[i].credits << "," << DS_course[i].max_students<<","<<DS_course[i].wDay<<","<<DS_course[i].session << "\n";
+		}
+		f_course << sl << "," << DS_course[sl - 1].course_id << "," << DS_course[sl - 1].course_name << "," << DS_course[sl - 1].class_name << "," << DS_course[sl - 1].teacher_name << "," << DS_course[sl - 1].credits << "," << DS_course[sl - 1].max_students << "," << DS_course[sl - 1].wDay << "," << DS_course[sl - 1].session;
 		f_course.close();
 		return 1;
 	}
@@ -693,6 +815,7 @@ void view_list_of_student_in_course() {
 	system("pause");
 
 }
+//End of a semester
 bool export_list_of_student_in_course() {
 	system("cls");
 	gotoxy(35, 5);
@@ -743,84 +866,6 @@ bool export_list_of_student_in_course() {
 			return 0;
 		}
 		return 1;
-	}
-}
-
-void save_scoreboard_student(Student student, Course course) {
-	fstream student_scoreboard;
-	student_scoreboard.open(semester_path + "student/" + student.Id + "-scoreboard.csv");
-	if (student_scoreboard.is_open()) {
-			int i = 0;
-			int sl = count(semester_path + "student/" + student.Id + "-scoreboard.csv");
-			if (sl > 0) {
-				Course* ds = new Course[sl];
-				string temp;
-				bool flag = false;
-				getline(student_scoreboard, temp);
-				while (i < sl) {
-					string no;
-					getline(student_scoreboard, no, ',');
-					getline(student_scoreboard, ds[i].course_id, ',');
-					getline(student_scoreboard, ds[i].class_name, ',');
-					string MidtermMark;
-					getline(student_scoreboard, MidtermMark, ',');
-					ds[i].MidtermMark = stof(MidtermMark);
-					string FinalMark;
-					getline(student_scoreboard, FinalMark, ',');
-					ds[i].FinalMark = stof(FinalMark);
-					string OtherMark;
-					getline(student_scoreboard, OtherMark, ',');
-					ds[i].OtherMark = stof(OtherMark);
-					string TotalMark;
-					getline(student_scoreboard, TotalMark);
-					ds[i].TotalMark = stof(TotalMark);
-					i++;
-				}
-				for (int i = 0; i < sl; i++) {
-					if (course.course_id == ds[i].course_id)
-					{
-						ds[i] = course;
-						flag = true;
-						break;
-					}
-				}
-				if (flag) {
-					student_scoreboard.close();
-					ofstream new_scoreboard;
-					new_scoreboard.open(semester_path + "student/" + student.Id + "-scoreboard.csv");
-					if (new_scoreboard.is_open()) {
-						new_scoreboard << temp << endl;
-						for (int i = 0; i < sl - 1; i++) {
-							new_scoreboard <<i+1 <<","<< ds[i].course_id << "," << ds[i].class_name << "," << ds[i].MidtermMark << "," << ds[i].FinalMark << "," << ds[i].OtherMark << "," << ds[i].TotalMark << "\n";
-						}
-						sl = (sl == 1) ? 1 : sl - 1;
-					    new_scoreboard << sl << "," << ds[sl-1].course_id << "," << ds[sl-1].class_name << "," << ds[sl-1].MidtermMark << "," << ds[sl-1].FinalMark << "," << ds[sl-1].OtherMark << "," << ds[sl-1].TotalMark;
-						new_scoreboard.close();
-					}
-					else {
-						notify_box("Can't open file!");
-						return;
-					}
-					
-				}
-				else {
-					student_scoreboard.seekp(0, ios::end);
-					student_scoreboard << i + 1 << "," << course.course_id << "," << course.class_name << "," << course.MidtermMark << "," << course.FinalMark<< "," <<course.OtherMark << "," << course.TotalMark;
-					student_scoreboard.close();
-					return;
-				}
-			}
-			else {
-				string temp;
-				getline(student_scoreboard, temp);
-				student_scoreboard << 1 << "," << course.course_id << "," << course.class_name << "," << course.MidtermMark << "," << course.FinalMark << "," << course.OtherMark << "," << course.TotalMark;
-				student_scoreboard.close();
-				return;
-			}
-	}
-	else {
-		notify_box("Can't open file!");
-		return;
 	}
 }
 bool import_scoreboard_of_course() {
@@ -947,6 +992,40 @@ void view_scoreboard_of_course() {
 		course_scoreboard.close();
 		system("pause");
 	}
+}
+void calculateGPA_class(Student *&DS_student, string class_path) {
+	int number_student = count(class_path);
+	load_Student(DS_student, class_path,0);
+	for (int i = 0; i < number_student; i++) {
+		calculate_OverallGPA(DS_student[i]);
+	}
+}
+void view_scoreboard_class() {
+	system("cls");
+	string class_name;
+	gotoxy(37, 5);
+	cout << "VIEW SCOREBOARD OF CLASS";
+	gotoxy(35, 6);
+	cout << "Class:";
+	getline(cin, class_name);
+	transform(class_name.begin(), class_name.end(), class_name.begin(), ::toupper);
+	Class* ds = new Class[count_number_classes()];
+	load_list_classes(ds);
+	for (int i = 0; i < count_number_classes(); i++) {
+		if (ds[i].className == class_name) {
+			string class_path = { ds[i].path.u8string() };
+			int sl = count(class_path);
+			Student* DS_student = new Student[sl];
+			calculateGPA_class(DS_student, class_path);
+			system("cls");
+			cout << left << setw(3) << "No" << setw(11) << "Student ID" << setw(17) << "First name" << setw(10) << "Last name" << setw(7) << "Gender" << setw(4) << "GPA" << setw(12) << "Overall GPA" << "\n";
+			for (int i = 0; i < sl; i++) {
+				cout << left << setw(3) << i + 1 << setw(11) << DS_student[i].Id << setw(17) << DS_student[i].Firstname << setw(10) << DS_student[i].Lastname << setw(7) << DS_student[i].Gender << setw(4) << DS_student[i].GPA << setw(12) << DS_student[i].overallGPA << "\n";
+			}
+			system("pause");
+			break;
+		}
+	}
 
 }
 bool update_student_result() {
@@ -1055,6 +1134,82 @@ bool update_student_result() {
 		}
 	}
 }
+//Login and MENU
+void Manage_course() {
+	char menu_mange_course[13][40] = { "1.Add a course to semester", "2.Quick input student to a course","3.Update course information","4.Delete a course", "5.Remove a student form course","6.View list of courses","7.View list of students in a course", "8.Import scoreboard a course","9.Export list of student in a course ","10.Update student result","11.View scoreboard of a course","12.Back" };
+	do {
+		system("cls");
+		int choice = menu(menu_mange_course, 13, 40);
+		if (choice == 0)
+		{
+			if (add_Course_to_Semester()) notify_box("Input Course successfully!");
+		}
+		else if (choice == 1)
+		{
+			if (Quick_Input_student_to_course()) notify_box("Input Courses successfully!");
+		}
+		else if (choice == 2) {
+			if (update_course_information()) notify_box("Update successfullly!");
+
+		}
+		else if (choice == 3) {
+			if (Delete_a_course()) notify_box("Delete a course successfullly!");
+		}
+		else if (choice == 4)
+		{
+			if (Remove_student_frome_course()) notify_box("Remove successfully!");
+		}
+		else if (choice == 5) {
+			view_list_courses();
+		}
+		else if (choice == 6) {
+			view_list_of_student_in_course();
+		}
+		else if (choice == 7) {
+			if (import_scoreboard_of_course()) notify_box("Import successfully!");
+		}
+		else if (choice == 8) {
+			if (export_list_of_student_in_course()) notify_box("Export successfully!");
+		}
+		else if (choice == 9) {
+			if (update_student_result()) notify_box("Update successfull!");
+		}
+		else if (choice == 10) {
+			view_scoreboard_of_course();
+		}
+		else if (choice == 11) {
+			break;
+		}
+	} while (1);
+}
+void Manage_class() {
+	char menu_manage_class[6][40] = { "1.Quick input student to class", "2.Add student to class","3.View list of classes","4.View list of student in class", "5.View scoreboard of class","6.Back" };
+	do {
+		system("cls");
+		int choice = menu(menu_manage_class, 20, 40);
+		if (choice == 0)
+		{
+			if (Quick_Input_Student_to_class()) notify_box("Input Class successfully!");
+		}
+		else if (choice == 1)
+		{
+			if (add_Student_to_Class()) notify_box("Input Student successfully!");
+		}
+		else if (choice == 2) {
+			view_list_of_classes();
+		}
+		else if (choice == 3) {
+			view_list_of_student_in_class();
+		}
+		else if (choice == 4)
+		{
+			view_scoreboard_class();
+		}
+		else if (choice == 5) {
+			break;
+		}
+	} while (1);
+}
 void Staff_lg() {
 	ifstream staff;
 	string path = "./Data/Users/Staff.csv";
@@ -1111,10 +1266,10 @@ void Staff_lg() {
 	} while (1);
 	staff.close();
 	if (flag) {
-		char menu_staff[19][40] = { "1.Your profile", "2.Change the password","3.Create new School Year","4.Create new semester", "5.Quick input student to class","6.Quick input student to a course","7.Add a student to a class", "8.Add a course to a semester","9.View the list of courses ","10.Update course information","11.Remove student form a course","12.View list of classes","13.View list of student in class","14.View list of student in course","15.Export list of student in course","16.Import course scoreboard","17.View scoreboard of a course","18.Update a student result","19.Log out" };
+		char menu_staff[7][40] = { "1.Your profile", "2.Change the password","3.Create new School Year","4.Create new semester", "5.Manage class","6.Manage course","7.Log out"};
 		do {
 			system("cls");
-			int choice = menu(menu_staff, 19, 40);
+			int choice = menu(menu_staff, 7, 40);
 			if (choice == 0)
 			{
 				system("cls");
@@ -1144,49 +1299,12 @@ void Staff_lg() {
 			}
 			else if (choice == 4)
 			{
-				if (Quick_Input_Student_to_class()) notify_box("Input Class successful!");
+				Manage_class();
 			}
 			else if (choice == 5) {
-				if (Quick_Input_student_to_course()) notify_box("Input Courses successful!");
+				Manage_course();
 			}
 			else if (choice == 6) {
-				if (add_Student_to_Class()) notify_box("Input Student successful!");
-			}
-			else if (choice == 7) {
-				if (add_Course_to_Semester()) notify_box("Input Course successful!");
-			}
-			else if (choice == 8) {
-				view_list_courses();
-			}
-			else if (choice == 9) {
-				if (update_course_information()) notify_box("Update successfull!");
-			}
-			else if (choice == 10) {
-				if (Remove_student_frome_course()) notify_box("Remove successful!");
-			}
-			else if (choice == 11) {
-				view_list_of_classes();
-			}
-			else if (choice == 12) {
-				view_list_of_student_in_class();
-			}
-			else if (choice == 13) {
-				view_list_of_student_in_course();
-			}
-			else if (choice == 14) {
-				if (export_list_of_student_in_course()) notify_box("Export successfull!");
-			}
-			else if (choice == 15) {
-				if (import_scoreboard_of_course()) notify_box("Import successfull!");
-			}
-			else if (choice == 16) {
-				view_scoreboard_of_course();
-			}
-			else if (choice == 17)
-			{
-				if(update_student_result()) notify_box("Update successfull!");
-			}
-			else if (choice == 18) {
 				break;
 			}
 		} while (1);
