@@ -1,7 +1,7 @@
 #include "mylib.h"
 
 int main()
-{
+{ 
 	getcurrentDate();
 	getschoolyear_path();
 	getsemester_path();

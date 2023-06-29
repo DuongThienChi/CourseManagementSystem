@@ -34,27 +34,6 @@ bool create_School_Year() {
 
 	}
 }
-void add_to_User(Student a) {
-	fstream user;
-	user.open("./Data/Users/Student.csv");
-	if (!user.is_open()) {
-		notify_box("Can't open file");
-		system("pause");
-		return;
-	}
-	else {
-		int sl = count("./Data/Users/Student.csv");
-		Student* DS = new Student[sl + 1];
-		load_Student(DS, "./Data/Users/Student.csv", 1);
-		DS[sl] = a;
-		user << "No, Student ID, First name, Last name, Gender, Day of birth, Social ID, Password" << "\n";
-		for (int i = 0; i < sl + 1; i++) {
-			user << i + 1 << "," << DS[i].Id << "," << DS[i].Firstname << "," << DS[i].Lastname << "," << DS[i].Gender << "," << DS[i].DoB << "," << DS[i].Social_Id << "," << DS[i].password << "\n";
-		}
-		user.close();
-	}
-
-}
 bool Quick_Input_Student_to_class() {
 	system("cls");
 	gotoxy(35, 7);
@@ -133,12 +112,12 @@ bool check_repeat_student(Student a, Student* DS, int sl) {
 }
 bool add_Student_to_Class() {
 	system("cls");
-	/* if (currentdate.Month != month_begin_a_schoolyear)
+	 if (currentdate.Month != month_begin_a_schoolyear)
 	 {
 		 notify_box("Can't add new Student in this time");
 		 return 0;
 	 }
-	 else*/ {
+	 else {
 		string name_Class;
 		gotoxy(35, 4);
 		cout << "Class:";
@@ -203,14 +182,12 @@ bool add_Student_to_Class() {
 			ofstream class_file;
 			class_file.open(class_path);
 			if (class_file.is_open()) {
-				class_file << temp << "\n";
+				class_file << "No, Student ID, First name, Last name, Gender, Day of birth, Social ID" << "\n";
 				for (int i = 0; i < sl; i++) {
 					class_file << i + 1 << "," << DS[i].Id << "," << DS[i].Firstname << "," << DS[i].Lastname << "," << DS[i].Gender << "," << DS[i].DoB << "," << DS[i].Social_Id << "\n";
 				}
 				class_file << sl + 1 << "," << DS[sl].Id << "," << DS[sl].Firstname << "," << DS[sl].Lastname << "," << DS[sl].Gender << "," << DS[sl].DoB << "," << DS[sl].Social_Id;
 				class_file.close();
-				new_std.password = "12345678";
-				add_to_User(new_std);
 			}
 			else {
 				notify_box("Can not open file!");
@@ -227,12 +204,12 @@ bool add_Student_to_Class() {
 }
 //Begin new semester
 bool createSemester() {
-	/* if (currentdate.Month != month_begin_semester[0] || currentdate.Month != month_begin_semester[1] || currentdate.Month != month_begin_semester[2]) {
+	if (currentdate.Month != month_begin_semester[0] || currentdate.Month != month_begin_semester[1] || currentdate.Month != month_begin_semester[2]) {
 		 string mess = { "Can not create a new semester in this time!" };
 		 notify_box(mess);
 		 return 0;
 	 }
-	 else {*/
+	 else {
 	if (!dirExists(semester_path)) {
 		fs::create_directories(semester_path);
 		fs::create_directories(semester_path + "staff/");
@@ -260,9 +237,15 @@ bool createSemester() {
 			return 1;
 		}
 		else return 0;
+		ofstream f_publish(semester_path + "Publish_Scoreboard.bin");
+		if (f_publish.is_open()) {
+			f_publish << 0;
+			f_publish.close();
+		}
+		else return 0;
 	}
 	else return 1;
-	// }
+ }
 }
 bool check_course(Course a) {
 	if (a.course_id.length() != 8 || a.class_name == "" || a.teacher_name == "")
@@ -1134,12 +1117,20 @@ bool update_student_result() {
 		}
 	}
 }
+void publish_scoreboard() {
+	ofstream f_publish(semester_path + "Publish_Scoreboard.bin");
+	if (f_publish.is_open()) {
+		f_publish << 1;
+		f_publish.close();
+	}
+}
 //Login and MENU
 void Manage_course() {
-	char menu_mange_course[13][40] = { "1.Add a course to semester", "2.Quick input student to a course","3.Update course information","4.Delete a course", "5.Remove a student form course","6.View list of courses","7.View list of students in a course", "8.Import scoreboard a course","9.Export list of student in a course ","10.Update student result","11.View scoreboard of a course","12.Back" };
+	char menu_mange_course[14][40] = { "1.Add a course to semester", "2.Quick input student to a course","3.Update course information","4.Delete a course", "5.Remove a student form course","6.View list of courses","7.View list of students in a course", "8.Import scoreboard a course","9.Export list of student in a course ","10.Update student result","11.View scoreboard of a course","12.Publish scoreboard","13.Back"};
 	do {
 		system("cls");
-		int choice = menu(menu_mange_course, 13, 40);
+		print_Text("./Data/Title/manage_course.txt", 9, 20, 3);
+		int choice = menu(menu_mange_course, 14, 40,35,8);
 		if (choice == 0)
 		{
 			if (add_Course_to_Semester()) notify_box("Input Course successfully!");
@@ -1178,6 +1169,9 @@ void Manage_course() {
 			view_scoreboard_of_course();
 		}
 		else if (choice == 11) {
+			publish_scoreboard();
+		}
+		else if (choice == 12) {
 			break;
 		}
 	} while (1);
@@ -1186,7 +1180,8 @@ void Manage_class() {
 	char menu_manage_class[6][40] = { "1.Quick input student to class", "2.Add student to class","3.View list of classes","4.View list of student in class", "5.View scoreboard of class","6.Back" };
 	do {
 		system("cls");
-		int choice = menu(menu_manage_class, 20, 40);
+		print_Text("./Data/Title/manage_class.txt", 9, 20, 3);
+		int choice = menu(menu_manage_class, 6, 40,35,8);
 		if (choice == 0)
 		{
 			if (Quick_Input_Student_to_class()) notify_box("Input Class successfully!");
@@ -1226,7 +1221,7 @@ void Staff_lg() {
 	int i = 0;
 	string temp;
 	getline(staff, temp);
-	while (!staff.eof()) {
+	while (i<sl) {
 		getline(staff, DS[i].No, ',');
 		getline(staff, DS[i].Id, ',');
 		getline(staff, DS[i].Firstname, ',');
@@ -1269,7 +1264,8 @@ void Staff_lg() {
 		char menu_staff[7][40] = { "1.Your profile", "2.Change the password","3.Create new School Year","4.Create new semester", "5.Manage class","6.Manage course","7.Log out"};
 		do {
 			system("cls");
-			int choice = menu(menu_staff, 7, 40);
+			print_Text("./Data/Title/staff_title.txt", 9, 35, 3);
+			int choice = menu(menu_staff, 7, 40,35,8);
 			if (choice == 0)
 			{
 				system("cls");
@@ -1308,6 +1304,5 @@ void Staff_lg() {
 				break;
 			}
 		} while (1);
-		system("pause");
 	}
 }

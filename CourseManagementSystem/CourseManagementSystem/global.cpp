@@ -12,7 +12,52 @@ void gotoxy(int x, int y) {
 	c.Y = y;
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), c);
 }
-void disp(int n, char menu[][40], int rows, int cols)
+int getConsoleWindowSize(int& width, int& height) {
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	GetConsoleScreenBufferInfo(hConsole, &csbi);
+	width = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+	height = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+	return 0;
+}
+void CreateConsoleWindow(int pWidth, int pHeight)
+{
+	HWND consoleWindow = GetConsoleWindow();
+	RECT r;
+	HANDLE hConsole;
+	hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleTextAttribute(hConsole, 240);
+	GetWindowRect(consoleWindow, &r);
+	MoveWindow(consoleWindow, 0, 0, pWidth, pHeight, TRUE);
+}
+
+void FixConsoleWindow()
+{
+	HWND consoleWindow = GetConsoleWindow();
+	LONG style = GetWindowLong(consoleWindow, GWL_STYLE);
+	style = style & ~(WS_MAXIMIZEBOX) & ~(WS_THICKFRAME);
+	SetWindowLong(consoleWindow, GWL_STYLE, style);
+}
+void print_Text(string filename, int cl, int x, int y) //In du lieu tep tin
+{
+	fstream f;
+	f.open(filename, ios::in);
+	string line;
+	vector<string> subline;
+	while (!f.eof())
+	{
+		getline(f, line);
+		subline.push_back(line);
+	}
+	for (int i = 0; i < subline.size(); i++)
+	{
+		gotoxy(x, y++);
+		color(cl);
+		cout << subline[i];
+	}
+	f.close();
+}
+void disp(int n, char menu[][40], int rows, int cols, int width, int height)
 {
 	int i = 0;
 	for (i = 0; i < rows; i++)
@@ -20,14 +65,14 @@ void disp(int n, char menu[][40], int rows, int cols)
 		if (i == n)
 		{
 			color(12);
-			gotoxy(35, 5 + i);
+			gotoxy(width, height + i);
 			cout << menu[i];
 			color(7);
 
 		}
 		else
 		{
-			gotoxy(35, 5 + i);
+			gotoxy(width, height + i);
 			color(7);
 			cout << menu[i];
 		}
@@ -39,11 +84,11 @@ void notify_box(string messg) {
 	cout << messg << endl;
 	system("pause");
 }
-int menu(char menu[][40], int rows, int cols)
+int menu(char menu[][40], int rows, int cols, int width, int height)
 {
 	int  i = 0;
 	int x;
-	disp(i, menu, rows, cols);
+	disp(i, menu, rows, cols,width,height);
 	while (1)
 	{
 		x = _getch();
@@ -53,12 +98,12 @@ int menu(char menu[][40], int rows, int cols)
 			{
 
 				i = i + 1;
-				disp(i, menu, rows, cols);
+				disp(i, menu, rows, cols, width, height);
 			}
 			else if (i == rows - 1)
 			{
 				i = 0;
-				disp(i, menu, rows, cols);
+				disp(i, menu, rows, cols, width, height);
 			}
 		}
 		else if (x == 72)
@@ -66,12 +111,12 @@ int menu(char menu[][40], int rows, int cols)
 			if (i > 0)
 			{
 				i = i - 1;
-				disp(i, menu, rows, cols);
+				disp(i, menu, rows, cols, width, height);
 			}
 			else if (i == 0)
 			{
 				i = rows - 1;
-				disp(i, menu, rows, cols);
+				disp(i, menu, rows, cols, width, height);
 			}
 		}
 		else if (x == '\r')
@@ -80,7 +125,7 @@ int menu(char menu[][40], int rows, int cols)
 		}
 		else
 		{
-			disp(i, menu, rows, cols);
+			disp(i, menu, rows, cols, width, height);
 		}
 	}
 	return -1;
@@ -181,10 +226,6 @@ void calculate_GPA(Student& a) {
 		GPA = Sum_TotalMark / Sum_creadits;
 		a.GPA = GPA;
 	}
-	else {
-		notify_box("Can't open file scoreboard!");
-		return;
-	}
 
 }
 void calculate_OverallGPA(Student& a) {
@@ -205,10 +246,6 @@ void calculate_OverallGPA(Student& a) {
 		ofstream fout(overallGPA_path);
 		fout << a.overallGPA;
 		fout.close();
-	}
-	else {
-		notify_box("Can't open file overall GPA!");
-		return;
 	}
 }
 int count(string path) {
@@ -231,6 +268,7 @@ int count(string path) {
 void changepass(Staff* staff_user, Student* std_user) {
 	string newpass1;
 	string newpass2;
+	string staff_path = "./Data/Users/Staff.csv";
 	do {
 		system("cls");
 		gotoxy(35, 4);
@@ -254,24 +292,89 @@ void changepass(Staff* staff_user, Student* std_user) {
 	} while (1);
 	if (staff_user != NULL) {
 		(*staff_user).password = newpass1;
+		ifstream user;
+		user.open(staff_path);
+		if (!user.is_open()) {
+			notify_box("Can't open file");
+			system("pause");
+			return;
+		}
+		else {
+			int sl = count(staff_path);
+			Staff* DS = new Staff[sl];
+			int i = 0;
+			string temp;
+			getline(user, temp);
+			while (i < sl) {
+				getline(user, DS[i].No, ',');
+				getline(user, DS[i].Id, ',');
+				getline(user, DS[i].Firstname, ',');
+				getline(user, DS[i].Lastname, ',');
+				getline(user, DS[i].Facultry, ',');
+				getline(user, DS[i].Social_Id, ',');
+				getline(user, DS[i].password);
+				i++;
+			}
+			user.close();
+			for (int i = 0; i < sl; i++) {
+				if ((*staff_user).Id == DS[i].Id)
+				{
+					DS[i] = (*staff_user);
+					break;
+				}
+			}
+			ofstream user;
+			user.open(staff_path);
+			user << "No,Staff ID,First Name,Last Name,Facultry,Social ID,Password" << "\n";
+			for (int i = 0; i < sl ; i++) {
+				user << i + 1 << "," << DS[i].Id << "," << DS[i].Firstname << "," << DS[i].Lastname << "," << DS[i].Facultry << "," << DS[i].Social_Id  << "," << DS[i].password << "\n";
+			}
+			user.close();
+		}
 	}
-	else
+	else {
 		(*std_user).password = newpass1;
+		add_to_User(*(std_user));
+	}
 	{
 		gotoxy(35, 6);
 		color(14);
 		cout << "Cap nhat thanh cong mat khau moi" << endl; }
 	system("pause");
 }
+void add_to_User(Student a) {
+	fstream user;
+	user.open("./Data/Users/Student.csv");
+	if (!user.is_open()) {
+		notify_box("Can't open file");
+		system("pause");
+		return;
+	}
+	else {
+		int sl = count("./Data/Users/Student.csv");
+		Student* DS = new Student[sl];
+		load_Student(DS, "./Data/Users/Student.csv", 1);
+		for (int i = 0; i < sl; i++) {
+			if (a.Id == DS[i].Id)
+			{
+				DS[i] = a;
+				break;
+			}
+		}
+		user << "No, Student ID, First name, Last name, Gender, Day of birth, Social ID, Password" << "\n";
+		for (int i = 0; i < sl; i++) {
+			user << i + 1 << "," << DS[i].Id << "," << DS[i].Firstname << "," << DS[i].Lastname << "," << DS[i].Gender << "," << DS[i].DoB << "," << DS[i].Social_Id << "," << DS[i].password << "\n";
+		}
+		user.close();
+	}
+}
 void Menu_Login() {
 	char menu1[3][40] = { "Login as Student" ,"Login as Staff","Exit" };
 	while (1) {
 		system("cls");
 		cout << currentdate.Day << "/" << currentdate.Month << "/" << currentdate.Year << endl;
-		gotoxy(35, 4);
-		color(9);
-		cout << "COURSE MANAGEMENT SYSTEM";
-		int choice = menu(menu1, 3, 40);
+		print_Text("./Data/Title/title.txt", 9, 15, 3);
+		int choice = menu(menu1, 3, 40,48,8);
 		if (choice == 0)
 		{
 			Student_lg();
