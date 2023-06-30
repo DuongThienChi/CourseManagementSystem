@@ -1117,12 +1117,15 @@ bool update_student_result() {
 		}
 	}
 }
-void publish_scoreboard() {
+bool publish_scoreboard() {
 	ofstream f_publish(semester_path + "Publish_Scoreboard.bin");
 	if (f_publish.is_open()) {
 		f_publish << 1;
 		f_publish.close();
+		return 1;
 	}
+	else
+	 return 0;
 }
 //Login and MENU
 void Manage_course() {
@@ -1169,7 +1172,7 @@ void Manage_course() {
 			view_scoreboard_of_course();
 		}
 		else if (choice == 11) {
-			publish_scoreboard();
+			if (publish_scoreboard()) notify_box("Publish Scoreboard!");
 		}
 		else if (choice == 12) {
 			break;
