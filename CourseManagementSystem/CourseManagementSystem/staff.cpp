@@ -36,6 +36,8 @@ bool create_School_Year() {
 }
 bool Quick_Input_Student_to_class() {
 	system("cls");
+	gotoxy(37, 6);
+	cout << "Quick Input Student to Class";
 	gotoxy(35, 7);
 	cout << "Linked to file classes:";
 	gotoxy(35, 8);
@@ -119,6 +121,8 @@ bool add_Student_to_Class() {
 	 }
 	 else {
 		string name_Class;
+		gotoxy(35, 3);
+		cout << "Add a 1st Student to Class";
 		gotoxy(35, 4);
 		cout << "Class:";
 		gotoxy(43, 4);
