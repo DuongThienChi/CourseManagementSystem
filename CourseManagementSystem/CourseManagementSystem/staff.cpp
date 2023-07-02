@@ -756,6 +756,8 @@ bool Delete_a_course() {
 }
 void view_list_of_student_in_course() {
 	system("cls");
+	gotoxy(37, 4);
+	cout << "VIEW LIST OF STUDENT IN COURSE";
 	gotoxy(35, 5);
 	cout << "Course ID:";
 	gotoxy(35, 6);
@@ -931,6 +933,8 @@ bool import_scoreboard_of_course() {
 }
 void view_scoreboard_of_course() {
 	system("cls");
+	gotoxy(37, 4);
+	cout << "VIEW SCOREBOARD OF A COURSE";
 	gotoxy(35, 5);
 	cout << "Course ID:";
 	gotoxy(35, 6);
