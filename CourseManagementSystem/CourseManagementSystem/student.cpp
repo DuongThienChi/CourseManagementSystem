@@ -30,6 +30,7 @@ void load_Student(Student*& DS, string path,bool user) {
 			i++;
 		}
 		student.close();
+		return;
 	}
 }
 void view_list_course_study(Student std) {
@@ -153,7 +154,7 @@ void Student_lg() {
 		student.close();
 	}
 	Student* DS = new Student[sl + 1];
-	load_Student(DS, path,1);
+	load_Student(DS, path, 1);
 	string username;
 	string pass;
 	cout << "Login as Student";
@@ -184,11 +185,11 @@ void Student_lg() {
 		system("pause");
 	} while (1);
 	if (flag) {
-		char menu_student[5][40] = { "1.Your profile", "2.Change the password","3.View list of your courses", "4.View your scoreboard","5.Log out"};
+		char menu_student[5][40] = { "1.Your profile", "2.Change the password","3.View list of your courses", "4.View your scoreboard","5.Log out" };
 		do {
 			system("cls");
 			print_Text("./Data/Title/student_title.txt", 9, 35, 3);
-			int choice = menu(menu_student, 5, 40,35,8);
+			int choice = menu(menu_student, 5, 40, 35, 8);
 			if (choice == 0)
 			{
 				system("cls");

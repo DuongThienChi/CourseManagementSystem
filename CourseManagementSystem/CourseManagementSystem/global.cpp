@@ -20,24 +20,6 @@ int getConsoleWindowSize(int& width, int& height) {
 	height = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
 	return 0;
 }
-void CreateConsoleWindow(int pWidth, int pHeight)
-{
-	HWND consoleWindow = GetConsoleWindow();
-	RECT r;
-	HANDLE hConsole;
-	hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-	SetConsoleTextAttribute(hConsole, 240);
-	GetWindowRect(consoleWindow, &r);
-	MoveWindow(consoleWindow, 0, 0, pWidth, pHeight, TRUE);
-}
-
-void FixConsoleWindow()
-{
-	HWND consoleWindow = GetConsoleWindow();
-	LONG style = GetWindowLong(consoleWindow, GWL_STYLE);
-	style = style & ~(WS_MAXIMIZEBOX) & ~(WS_THICKFRAME);
-	SetWindowLong(consoleWindow, GWL_STYLE, style);
-}
 void print_Text(string filename, int cl, int x, int y) //In du lieu tep tin
 {
 	fstream f;
@@ -153,7 +135,7 @@ void get_list_courses(string path, Course*& DS) {
 		int sl = count(path);
 		DS = new Course[sl];
 		int i = 0;
-		while (!list_courses.eof()) {
+		while (i<sl) {
 			getline(list_courses, DS[i].course_id, ',');
 			getline(list_courses, DS[i].course_name, ',');
 			getline(list_courses, DS[i].class_name, ',');

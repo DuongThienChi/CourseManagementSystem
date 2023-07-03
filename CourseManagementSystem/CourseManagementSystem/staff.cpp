@@ -208,7 +208,7 @@ bool add_Student_to_Class() {
 }
 //Begin new semester
 bool createSemester() {
-	if (currentdate.Month != month_begin_semester[0] || currentdate.Month != month_begin_semester[1] || currentdate.Month != month_begin_semester[2]) {
+	if (currentdate.Month != month_begin_semester[0] && currentdate.Month != month_begin_semester[1] && currentdate.Month != month_begin_semester[2]) {
 		 string mess = { "Can not create a new semester in this time!" };
 		 notify_box(mess);
 		 return 0;
@@ -458,7 +458,7 @@ void save_scoreboard_student(Student student, Course course) {
 				}
 				else {
 					student_scoreboard.seekp(0, ios::end);
-					student_scoreboard << i + 1 << "," << course.course_id << "," << course.class_name << "," << course.MidtermMark << "," << course.FinalMark<< "," <<course.OtherMark << "," << course.TotalMark;
+					student_scoreboard <<i + 1 << "," << course.course_id << "," << course.class_name << "," << course.MidtermMark << "," << course.FinalMark << "," << course.OtherMark << "," << course.TotalMark;
 					student_scoreboard.close();
 					return;
 				}
@@ -530,6 +530,8 @@ bool Quick_Input_student_to_course() {
 	gotoxy(46, 9);
 	string classname;
 	getline(cin, classname);
+	transform(id.begin(), id.end(), id.begin(), ::toupper);
+	transform(classname.begin(), classname.end(), classname.begin(), ::toupper);
 	ifstream list_student;
 	list_student.open(link);
 	if (!list_student.is_open()) {
@@ -538,7 +540,6 @@ bool Quick_Input_student_to_course() {
 	}
 	else {
 		string source_file = link;
-		
 		string destination_file = semester_path + "staff/" + id + "-" + classname + ".csv";
 		/*Xu li sao chep du lieu */
 		ifstream sfile;
@@ -558,17 +559,18 @@ bool Quick_Input_student_to_course() {
 			return 0;
 		}
 		list_student.close();
+		int sl = count(link);
+		Student* DS_student = new Student[sl];
+		load_Student(DS_student, link, 0);
+		Course course;
+		course.course_id = id;
+		course.class_name = classname;
+		for (int i = 0; i < sl; i++) {
+			save_scoreboard_student(DS_student[i], course);
+		}
 		return 1;
 	}
-	int sl = count(link);
-	Student* DS_student = new Student[sl];
-	load_Student(DS_student, link, 0);
-	Course course;
-	course.course_id = id;
-	course.class_name = classname;
-	for (int i = 0; i < sl; i++) {
-		save_scoreboard_student(DS_student[i], course);
-	}
+	
 }
 void view_list_courses() {
 	string path = semester_path + "staff/courses.csv";
@@ -591,22 +593,7 @@ bool update_course_information() {
 		getline(list_courses, temp);
 		int sl = count(semester_path + "staff/courses.csv");
 		Course* DS = new Course[sl];
-		int i = 0;
-		while (i < sl) {
-			getline(list_courses, DS[i].course_id, ',');
-			getline(list_courses, DS[i].course_name, ',');
-			getline(list_courses, DS[i].class_name, ',');
-			getline(list_courses, DS[i].teacher_name, ',');
-			string credits;
-			getline(list_courses, credits, ',');
-			DS[i].credits = stoi(credits);
-			string maximum_students;
-			getline(list_courses, maximum_students, ',');
-			DS[i].max_students = stoi(maximum_students);
-			getline(list_courses, DS[i].wDay, ',');
-			getline(list_courses, DS[i].session);
-			i++;
-		}
+		get_list_courses(semester_path + "staff/courses.csv", DS);
 		system("cls");
 		Course new_course;
 		input_course(new_course);
@@ -656,55 +643,42 @@ bool Remove_student_frome_course() {
 	gotoxy(46, 7);
 	string student_id;
 	getline(cin, student_id);
+	transform(id.begin(), id.end(), id.begin(), ::toupper);
+	transform(classname.begin(), classname.end(), classname.begin(), ::toupper);
 	string path = semester_path + "staff/" + id + "-" + classname + ".csv";
-	int sl = count(path);
-	Student* DS = new Student[sl + 1];
-	ifstream student;
-	student.open(path);
-	if (!student.is_open()) {
-		cout << "Can't open file";
-		system("pause");
-		return 0;
-	}
-	else {
-		int i = 0;
-		string temp;
-		getline(student, temp);
-		while (!student.eof()) {
-			getline(student, DS[i].No, ',');
-			getline(student, DS[i].Id, ',');
-			getline(student, DS[i].Firstname, ',');
-			getline(student, DS[i].Lastname, ',');
-			getline(student, DS[i].Gender, ',');
-			getline(student, DS[i].DoB, ',');
-			getline(student, DS[i].Social_Id);
-			i++;
-		}
-		student.close();
-	}
-	for (int i = 0; i < sl; i++) {
-		if (DS[i].Id == student_id) {
-			for (int j = i; j < sl - 1; j++) {
-				DS[j] = DS[j + 1];
-			}
-			sl--;
-			break;
-		}
-	}
-	ofstream f_course;
-	f_course.open(path);
-	if (f_course.is_open()) {
-		f_course << "No,Student ID,First name,Last name,Gender,Day of birth,Social ID" << "\n";
+	int sl;
+	sl= count(path);
+	if (sl > 0) {
+		Student* DS = new Student[sl + 1];
+		load_Student(DS, path, 0);
 		for (int i = 0; i < sl - 1; i++) {
-			f_course << i + 1 << "," << DS[i].Id << "," << DS[i].Firstname << "," << DS[i].Lastname << "," << DS[i].Gender << "," << DS[i].DoB << "," << DS[i].Social_Id << "\n";
+			if (DS[sl - 1].Id == student_id) {
+				sl--;
+				break;
+			}
+			if (DS[i].Id == student_id) {
+				for (int j = i; j < sl - 1; j++) {
+					DS[j] = DS[j + 1];
+				}
+				sl--;
+				break;
+			}
 		}
-		f_course << sl << "," << DS[sl - 1].Id << "," << DS[sl - 1].Firstname << "," << DS[sl - 1].Lastname << "," << DS[sl - 1].Gender << "," << DS[sl - 1].DoB << "," << DS[sl - 1].Social_Id;
-		f_course.close();
-		return 1;
-	}
-	else {
-		notify_box("Can not open file!");
-		return 0;
+		ofstream f_course;
+		f_course.open(path);
+		if (f_course.is_open()) {
+			f_course << "No,Student ID,First name,Last name,Gender,Day of birth,Social ID" << "\n";
+			for (int i = 0; i < sl - 1; i++) {
+				f_course << i + 1 << "," << DS[i].Id << "," << DS[i].Firstname << "," << DS[i].Lastname << "," << DS[i].Gender << "," << DS[i].DoB << "," << DS[i].Social_Id << "\n";
+			}
+			f_course << sl << "," << DS[sl - 1].Id << "," << DS[sl - 1].Firstname << "," << DS[sl - 1].Lastname << "," << DS[sl - 1].Gender << "," << DS[sl - 1].DoB << "," << DS[sl - 1].Social_Id;
+			f_course.close();
+			return 1;
+		}
+		else {
+			notify_box("Can not open file!");
+			return 0;
+		}
 	}
 
 }
@@ -722,6 +696,8 @@ bool Delete_a_course() {
 	gotoxy(41, 7);
 	string class_name;
 	getline(cin, class_name);
+	transform(course_id.begin(), course_id.end(), course_id.begin(), ::toupper);
+	transform(class_name.begin(), class_name.end(), class_name.begin(), ::toupper);
 	int sl = count(semester_path + "staff/courses.csv");
 	Course* DS_course = new Course[sl];
 	get_list_courses(semester_path + "staff/courses.csv",DS_course);
@@ -773,33 +749,11 @@ void view_list_of_student_in_course() {
 	string path_course = semester_path + "staff/" + course_id + "-" + class_name + ".csv";
 	int sl = count(path_course);
 	Student* DS_hocsinh = new Student[sl];
-	ifstream student;
-	student.open(path_course);
-	if (!student.is_open()) {
-		cout << "Can't open file";
-		system("pause");
-		return;
-	}
-	else {
-		int i = 0;
-		string temp;
-		getline(student, temp);
-		while (i < sl) {
-			getline(student, DS_hocsinh[i].No, ',');
-			getline(student, DS_hocsinh[i].Id, ',');
-			getline(student, DS_hocsinh[i].Firstname, ',');
-			getline(student, DS_hocsinh[i].Lastname, ',');
-			getline(student, DS_hocsinh[i].Gender, ',');
-			getline(student, DS_hocsinh[i].DoB, ',');
-			getline(student, DS_hocsinh[i].Social_Id);
-			i++;
-		}
-		student.close();
-	}
+	load_Student(DS_hocsinh, path_course, 0);
 	system("cls");
 	cout << left << setw(3) << "No" << setw(11) << "Student ID" << setw(17) << "First name" << setw(10) << "Last name" << setw(7) << "Gender" << setw(9) << "DoB" << setw(10) << "Social ID" << "\n";
 	for (int i = 0; i < sl; i++) {
-		cout << left << setw(3) << i + 1 << setw(11) << DS_hocsinh->Id << setw(17) << DS_hocsinh->Firstname << setw(10) << DS_hocsinh->Lastname << setw(7) << DS_hocsinh->Gender << setw(9) << DS_hocsinh->DoB << setw(10) << DS_hocsinh->Social_Id << "\n";
+		cout << left << setw(3) << i + 1 << setw(11) << DS_hocsinh[i].Id << setw(17) << DS_hocsinh[i].Firstname << setw(10) << DS_hocsinh[i].Lastname << setw(7) << DS_hocsinh[i].Gender << setw(9) << DS_hocsinh[i].DoB << setw(10) << DS_hocsinh[i].Social_Id << "\n";
 	}
 	system("pause");
 
