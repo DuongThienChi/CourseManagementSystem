@@ -85,7 +85,7 @@ void view_list_course_study(Student std) {
 }
 void view_scoreboard(Student std) {
 	bool publish = 0;
-	ifstream f_publish(semester_path + "Publish_Scoreboard.bin");
+	ifstream f_publish("./Data/Publish_Scoreboard.bin");
 	if (f_publish.is_open()) {
 		f_publish >> publish;
 		f_publish.close();

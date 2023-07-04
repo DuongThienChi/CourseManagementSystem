@@ -247,7 +247,7 @@ bool createSemester() {
  }
 }
 bool check_course(Course a) {
-	if (a.course_id.length() != 8 || a.class_name == "" || a.teacher_name == "")
+	if (a.course_id.length() != 8 || a.class_name == "")
 		return 1;
 	return 0;
 }
@@ -357,29 +357,7 @@ void view_list_of_student_in_class() {
 			string path_string = { ds[i].path.u8string() };
 			int sl = count(path_string);
 			Student* DS_student = new Student[sl];
-			ifstream student;
-			student.open(path_string);
-			if (!student.is_open()) {
-				cout << "Can't open file";
-				system("pause");
-				return;
-			}
-			else {
-				int i = 0;
-				string temp;
-				getline(student, temp);
-				while (i < sl) {
-					getline(student, DS_student[i].No, ',');
-					getline(student, DS_student[i].Id, ',');
-					getline(student, DS_student[i].Firstname, ',');
-					getline(student, DS_student[i].Lastname, ',');
-					getline(student, DS_student[i].Gender, ',');
-					getline(student, DS_student[i].DoB, ',');
-					getline(student, DS_student[i].Social_Id);
-					i++;
-				}
-				student.close();
-			}
+			load_Student(DS_student, path_string, 0);
 			system("cls");
 			cout << left << setw(3) << "No" << setw(11) << "Student ID" << setw(17) << "First name" << setw(10) << "Last name" << setw(7) << "Gender" << setw(9) << "DoB" << setw(10) << "Social ID" << "\n";
 			for (int i = 0; i < sl; i++) {
@@ -682,26 +660,35 @@ bool Remove_student_frome_course() {
 
 }
 bool Delete_a_course() {
-	system("cls");
-	gotoxy(37, 5);
-	cout << "DELETE A COURSE";
-	gotoxy(35, 6);
-	cout << "Course ID:";
-	gotoxy(35, 7);
-	cout << "Class:";
-	gotoxy(45, 6);
-	string course_id;
-	getline(cin, course_id);
-	gotoxy(41, 7);
-	string class_name;
-	getline(cin, class_name);
-	transform(course_id.begin(), course_id.end(), course_id.begin(), ::toupper);
-	transform(class_name.begin(), class_name.end(), class_name.begin(), ::toupper);
+	Course course;
+	do {
+		system("cls");
+		gotoxy(37, 5);
+		cout << "DELETE A COURSE";
+		gotoxy(35, 6);
+		cout << "Course ID:";
+		gotoxy(35, 7);
+		cout << "Class:";
+		gotoxy(45, 6);
+		getline(cin, course.course_id);
+		gotoxy(41, 7);
+		getline(cin, course.class_name);
+		transform(course.course_id.begin(), course.course_id.end(), course.course_id.begin(), ::toupper);
+		transform(course.class_name.begin(), course.class_name.end(), course.class_name.begin(), ::toupper);
+		if (!check_course(course)) {
+			break;
+		}
+		else {
+			gotoxy(37, 8);
+			cout << "This course does not exist";
+			system("pause");
+		}
+	} while (1);
 	int sl = count(semester_path + "staff/courses.csv");
 	Course* DS_course = new Course[sl];
 	get_list_courses(semester_path + "staff/courses.csv",DS_course);
 	for (int i = 0; i < sl; i++) {
-		if (DS_course[i].course_id == course_id && DS_course[i].class_name == class_name) {
+		if (DS_course[i].course_id == course.course_id && DS_course[i].class_name == course.class_name) {
 			if (i != sl - 1) {
 				for (int j = i; j < sl - 1; j++) {
 					DS_course[j] = DS_course[j + 1];
@@ -730,22 +717,31 @@ bool Delete_a_course() {
 
 }
 void view_list_of_student_in_course() {
-	system("cls");
-	gotoxy(37, 4);
-	cout << "VIEW LIST OF STUDENT IN COURSE";
-	gotoxy(35, 5);
-	cout << "Course ID:";
-	gotoxy(35, 6);
-	cout << "Class name:";
-	gotoxy(45, 5);
-	string course_id;
-	getline(cin, course_id);
-	gotoxy(46, 6);
-	string class_name;
-	getline(cin, class_name);
-	transform(course_id.begin(), course_id.end(), course_id.begin(), ::toupper);
-	transform(class_name.begin(), class_name.end(), class_name.begin(), ::toupper);
-	string path_course = semester_path + "staff/" + course_id + "-" + class_name + ".csv";
+	Course course;
+	do {
+		system("cls");
+		gotoxy(37, 4);
+		cout << "VIEW LIST OF STUDENT IN COURSE";
+		gotoxy(35, 5);
+		cout << "Course ID:";
+		gotoxy(35, 6);
+		cout << "Class name:";
+		gotoxy(45, 5);
+		getline(cin, course.course_id);
+		gotoxy(46, 6);
+		getline(cin, course.class_name);
+		transform(course.course_id.begin(), course.course_id.end(), course.course_id.begin(), ::toupper);
+		transform(course.class_name.begin(), course.class_name.end(), course.class_name.begin(), ::toupper);
+		if (!check_course(course)) {
+			break;
+		}
+		else {
+			gotoxy(37, 8);
+			cout << "This course does not exist";
+			system("pause");
+		}
+	} while (1);
+	string path_course = semester_path + "staff/" + course.course_id + "-" + course.class_name + ".csv";
 	int sl = count(path_course);
 	Student* DS_hocsinh = new Student[sl];
 	load_Student(DS_hocsinh, path_course, 0);
@@ -759,20 +755,29 @@ void view_list_of_student_in_course() {
 }
 //End of a semester
 bool export_list_of_student_in_course() {
-	system("cls");
-	gotoxy(35, 5);
-	cout << "Course ID:";
-	gotoxy(35, 6);
-	cout << "Class name:";
-	gotoxy(45, 5);
-	string course_id;
-	getline(cin, course_id);
-	gotoxy(46, 6);
-	string class_name;
-	getline(cin, class_name);
-	transform(course_id.begin(), course_id.end(), course_id.begin(), ::toupper);
-	transform(class_name.begin(), class_name.end(), class_name.begin(), ::toupper);
-	string path_course = semester_path + "staff/" + course_id + "-" + class_name + ".csv";
+	Course course;
+	do {
+		system("cls");
+		gotoxy(35, 5);
+		cout << "Course ID:";
+		gotoxy(35, 6);
+		cout << "Class name:";
+		gotoxy(45, 5);
+		getline(cin, course.course_id);
+		gotoxy(46, 6);
+		getline(cin, course.class_name);
+		transform(course.course_id.begin(), course.course_id.end(), course.course_id.begin(), ::toupper);
+		transform(course.class_name.begin(), course.class_name.end(), course.class_name.begin(), ::toupper);
+		if (!check_course(course)) {
+			break;
+		}
+		else {
+			gotoxy(37, 8);
+			cout << "This course does not exist";
+			system("pause");
+		}
+	} while (1);
+	string path_course = semester_path + "staff/" + course.course_id + "-" + course.class_name + ".csv";
 	ifstream student;
 	student.open(path_course);
 	if (!student.is_open()) {
@@ -788,7 +793,7 @@ bool export_list_of_student_in_course() {
 			return 0;
 		}*/
 		string destination_file = "./Data/Export/";
-		destination_file = destination_file + course_id + "-" + class_name + ".csv";
+		destination_file = destination_file + course.course_id + "-" + course.class_name + ".csv";
 		/*Xu li sao chep du lieu */
 		ifstream sfile;
 		sfile.open(source_file, ios::binary | ios::in);
@@ -801,7 +806,7 @@ bool export_list_of_student_in_course() {
 			}
 			sfile.close();
 			dfile.close();
-			notify_box(course_id + "-" + class_name + " is created");
+			notify_box(course.course_id + "-" + course.class_name + " is created");
 		}
 		else {
 			notify_box("Can't open file");
@@ -885,22 +890,31 @@ bool import_scoreboard_of_course() {
 	return 1;
 }
 void view_scoreboard_of_course() {
-	system("cls");
-	gotoxy(37, 4);
-	cout << "VIEW SCOREBOARD OF A COURSE";
-	gotoxy(35, 5);
-	cout << "Course ID:";
-	gotoxy(35, 6);
-	cout << "Class name:";
-	gotoxy(45, 5);
-	string course_id;
-	getline(cin, course_id);
-	gotoxy(46, 6);
-	string class_name;
-	getline(cin, class_name);
-	transform(course_id.begin(), course_id.end(), course_id.begin(), ::toupper);
-	transform(class_name.begin(), class_name.end(), class_name.begin(), ::toupper);
-	string path_course = semester_path + "staff/" + course_id + "-" + class_name + "-scoreboard.csv";
+	Course course;
+	do {
+		system("cls");
+		gotoxy(37, 4);
+		cout << "VIEW SCOREBOARD OF A COURSE";
+		gotoxy(35, 5);
+		cout << "Course ID:";
+		gotoxy(35, 6);
+		cout << "Class name:";
+		gotoxy(45, 5);
+		getline(cin, course.course_id);
+		gotoxy(46, 6);
+		getline(cin, course.class_name);
+		transform(course.course_id.begin(), course.course_id.end(), course.course_id.begin(), ::toupper);
+		transform(course.class_name.begin(), course.class_name.end(), course.class_name.begin(), ::toupper);
+		if (!check_course(course)) {
+			break;
+		}
+		else {
+			gotoxy(37, 8);
+			cout << "This course does not exist";
+			system("pause");
+		}
+	} while (1);
+	string path_course = semester_path + "staff/" + course.course_id + "-" + course.class_name + "-scoreboard.csv";
 	int sl = count(path_course);
 	ifstream course_scoreboard;
 	course_scoreboard.open(path_course);
@@ -946,7 +960,7 @@ void calculateGPA_class(Student *&DS_student, string class_path) {
 }
 void view_scoreboard_class() {
 	bool publish = 0;
-	ifstream f_publish(semester_path + "Publish_Scoreboard.bin");
+	ifstream f_publish("./Data/Publish_Scoreboard.bin");
 	if (f_publish.is_open()) {
 		f_publish >> publish;
 		f_publish.close();
@@ -1090,9 +1104,23 @@ bool update_student_result() {
 	}
 }
 bool publish_scoreboard() {
-	ofstream f_publish(semester_path + "Publish_Scoreboard.bin");
+	ofstream f_publish("./Data/Publish_Scoreboard.bin");
 	if (f_publish.is_open()) {
-		f_publish << 1;
+		system("cls");
+		gotoxy(37, 6);
+		cout << "PUBLISH SCOREBOARD";
+		char choice;
+		gotoxy(35, 8);
+		cout << "Yours choice(y/n):";
+		cin >> choice;
+		if (choice == 'y') {
+			f_publish << 1;
+			notify_box("Publish successfully!");
+		}
+		else {
+			f_publish << 0;
+			notify_box("Unpublish successfully!");
+		}
 		f_publish.close();
 		return 1;
 	}
@@ -1144,7 +1172,7 @@ void Manage_course() {
 			view_scoreboard_of_course();
 		}
 		else if (choice == 11) {
-			if (publish_scoreboard()) notify_box("Publish Scoreboard!");
+			publish_scoreboard();
 		}
 		else if (choice == 12) {
 			break;
