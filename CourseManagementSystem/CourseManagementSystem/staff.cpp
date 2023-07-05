@@ -382,29 +382,9 @@ void save_scoreboard_student(Student student, Course course) {
 			int i = 0;
 			int sl = count(semester_path + "student/" + student.Id + "-scoreboard.csv");
 			if (sl > 0) {
-				Course* ds = new Course[sl];
-				string temp;
+				Course* ds = NULL;
+				get_list_courses_study(semester_path + "student/" + student.Id + "-scoreboard.csv", ds);
 				bool flag = false;
-				getline(student_scoreboard, temp);
-				while (i < sl) {
-					string no;
-					getline(student_scoreboard, no, ',');
-					getline(student_scoreboard, ds[i].course_id, ',');
-					getline(student_scoreboard, ds[i].class_name, ',');
-					string MidtermMark;
-					getline(student_scoreboard, MidtermMark, ',');
-					ds[i].MidtermMark = stof(MidtermMark);
-					string FinalMark;
-					getline(student_scoreboard, FinalMark, ',');
-					ds[i].FinalMark = stof(FinalMark);
-					string OtherMark;
-					getline(student_scoreboard, OtherMark, ',');
-					ds[i].OtherMark = stof(OtherMark);
-					string TotalMark;
-					getline(student_scoreboard, TotalMark);
-					ds[i].TotalMark = stof(TotalMark);
-					i++;
-				}
 				for (int i = 0; i < sl; i++) {
 					if (course.course_id == ds[i].course_id)
 					{
@@ -418,12 +398,16 @@ void save_scoreboard_student(Student student, Course course) {
 					ofstream new_scoreboard;
 					new_scoreboard.open(semester_path + "student/" + student.Id + "-scoreboard.csv");
 					if (new_scoreboard.is_open()) {
-						new_scoreboard << temp << endl;
-						for (int i = 0; i < sl - 1; i++) {
-							new_scoreboard <<i+1 <<","<< ds[i].course_id << "," << ds[i].class_name << "," << ds[i].MidtermMark << "," << ds[i].FinalMark << "," << ds[i].OtherMark << "," << ds[i].TotalMark << "\n";
+						new_scoreboard << "No,Course ID,Class,Midterm Mark,Final Mark,Other Mark,Total Mark" << endl;
+						if (sl > 1) {
+							for (int i = 0; i < sl - 1; i++) {
+								new_scoreboard << i + 1 << "," << ds[i].course_id << "," << ds[i].class_name << "," << ds[i].MidtermMark << "," << ds[i].FinalMark << "," << ds[i].OtherMark << "," << ds[i].TotalMark << "\n";
+							}
+							new_scoreboard << sl << "," << ds[sl - 1].course_id << "," << ds[sl - 1].class_name << "," << ds[sl - 1].MidtermMark << "," << ds[sl - 1].FinalMark << "," << ds[sl - 1].OtherMark << "," << ds[sl - 1].TotalMark;
 						}
-						sl = (sl == 1) ? 1 : sl - 1;
-					    new_scoreboard << sl << "," << ds[sl-1].course_id << "," << ds[sl-1].class_name << "," << ds[sl-1].MidtermMark << "," << ds[sl-1].FinalMark << "," << ds[sl-1].OtherMark << "," << ds[sl-1].TotalMark;
+						else if (sl == 1) {
+							new_scoreboard << 1 << "," << ds[0].course_id << "," << ds[0].class_name << "," << ds[0].MidtermMark << "," << ds[0].FinalMark << "," << ds[0].OtherMark << "," << ds[0].TotalMark;
+						}
 						new_scoreboard.close();
 					}
 					else {
@@ -680,13 +664,52 @@ bool Remove_student_frome_course() {
 				}
 				f_course << sl << "," << DS[sl - 1].Id << "," << DS[sl - 1].Firstname << "," << DS[sl - 1].Lastname << "," << DS[sl - 1].Gender << "," << DS[sl - 1].DoB << "," << DS[sl - 1].Social_Id;
 				f_course.close();
-				return 1;
+				string path = semester_path + "student/" + student_id + "-scoreboard.csv";
+				Course* ds = NULL;
+				int number_course_study = count(path);
+				get_list_courses_study(path, ds);
+				if (number_course_study > 1) {
+					for (int i = 0; i < number_course_study - 1; i++) {
+						if (ds[number_course_study - 1].course_id == id) {
+							number_course_study--;
+							break;
+						}
+						if (ds[i].course_id == id) {
+							for (int j = i; j < number_course_study - 1; j++) {
+								ds[j] = ds[j + 1];
+							}
+							number_course_study--;
+							break;
+						}
+					}
+					ofstream new_scoreboard;
+					new_scoreboard.open(path);
+					if (new_scoreboard.is_open()) {
+						new_scoreboard << "No,Course ID,Class,Midterm Mark,Final Mark,Other Mark,Total Mark" << "\n";
+						for (int i = 0; i < number_course_study - 1; i++) {
+							new_scoreboard << i + 1 << "," << ds[i].course_id << "," << ds[i].class_name << "," << ds[i].MidtermMark << "," << ds[i].FinalMark << "," << ds[i].OtherMark << "," << ds[i].TotalMark << "\n";
+						}
+						new_scoreboard << number_course_study << "," << ds[number_course_study - 1].course_id << "," << ds[number_course_study - 1].class_name << "," << ds[number_course_study - 1].MidtermMark << "," << ds[number_course_study - 1].FinalMark << "," << ds[number_course_study - 1].OtherMark << "," << ds[number_course_study - 1].TotalMark;
+						new_scoreboard.close();
+						return 1;
+					}
+					else {
+						notify_box("Can not open file!");
+						return 0;
+					}
+				}
+				else {
+					ofstream new_scoreboard;
+					new_scoreboard.open(path);
+					new_scoreboard << "No,Course ID,Class,Midterm Mark,Final Mark,Other Mark,Total Mark";
+				}
 			}
 			else {
 				notify_box("Can not open file!");
 				return 0;
 			}
 		}
+		else return 0;
 	}
 }
 bool Delete_a_course() {

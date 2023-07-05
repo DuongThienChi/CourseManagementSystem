@@ -82,6 +82,7 @@ void notify_box(string messg);
 bool dirExists(const std::string& dirName_in);
 void copyFolder(string from, string to);
 void get_list_courses(string path, Course*& DS);
+void get_list_courses_study(string path, Course*& ds);
 void load_Student(Student* &DS, string path,bool user);
 void calculate_GPA(Student& a);
 void calculate_OverallGPA(Student& a);

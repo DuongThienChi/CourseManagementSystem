@@ -130,6 +130,39 @@ void get_list_courses(string path, Course*& DS) {
 		return;
 	}
 }
+void get_list_courses_study(string path, Course*& ds) {
+	ifstream student_scoreboard;
+	student_scoreboard.open(path);
+	if (student_scoreboard.is_open()) {
+		int i = 0;
+		int sl = count(path);
+		if (sl > 0) {
+			ds = new Course[sl];
+			string temp;
+			getline(student_scoreboard, temp);
+			while (i < sl) {
+				string no;
+				getline(student_scoreboard, no, ',');
+				getline(student_scoreboard, ds[i].course_id, ',');
+				getline(student_scoreboard, ds[i].class_name, ',');
+				string MidtermMark;
+				getline(student_scoreboard, MidtermMark, ',');
+				ds[i].MidtermMark = stof(MidtermMark);
+				string FinalMark;
+				getline(student_scoreboard, FinalMark, ',');
+				ds[i].FinalMark = stof(FinalMark);
+				string OtherMark;
+				getline(student_scoreboard, OtherMark, ',');
+				ds[i].OtherMark = stof(OtherMark);
+				string TotalMark;
+				getline(student_scoreboard, TotalMark);
+				ds[i].TotalMark = stof(TotalMark);
+				i++;
+			}
+			student_scoreboard.close();
+		}
+	}
+}
 void calculate_GPA(Student& a) {
 	string scoreboard_path = semester_path + "student/" + a.Id + "-scoreboard.csv";
 	float GPA = 0;
