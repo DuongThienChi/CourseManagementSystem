@@ -433,9 +433,11 @@ void save_scoreboard_student(Student student, Course course) {
 					
 				}
 				else {
-					student_scoreboard.seekp(0, ios::end);
-					student_scoreboard <<i + 1 << "," << course.course_id << "," << course.class_name << "," << course.MidtermMark << "," << course.FinalMark << "," << course.OtherMark << "," << course.TotalMark;
 					student_scoreboard.close();
+					ofstream new_scoreboard;
+					new_scoreboard.open(semester_path + "student/" + student.Id + "-scoreboard.csv", ios::app);
+					new_scoreboard << "\n" <<i + 1 << "," << course.course_id << "," << course.class_name << "," << course.MidtermMark << "," << course.FinalMark << "," << course.OtherMark << "," << course.TotalMark;
+					new_scoreboard.close();
 					return;
 				}
 			}
@@ -453,7 +455,7 @@ void save_scoreboard_student(Student student, Course course) {
 	}
 }
 bool add_Course_to_Semester() {
-     if (currentdate.Month != month_begin_semester[0] || currentdate.Month != month_begin_semester[1] || currentdate.Month != month_begin_semester[2]) {
+     if (!(currentdate.Month == month_begin_semester[0] || currentdate.Month == month_begin_semester[1] || currentdate.Month == month_begin_semester[2])) {
 		 string mess = { "Can not add a new course in this time!" };
 		 notify_box(mess);
 		 return 0;
@@ -492,63 +494,69 @@ bool add_Course_to_Semester() {
  }
 }
 bool Quick_Input_student_to_course() {
-	system("cls");
-	gotoxy(35, 7);
-	cout << "Linked to file list student:";
-	gotoxy(35, 8);
-	cout << "Course ID:";
-	gotoxy(35, 9);
-	cout << "Class name:";
-	gotoxy(63, 7);
-	string link;
-	getline(cin, link);
-	gotoxy(45, 8);
-	string id;
-	getline(cin, id);
-	gotoxy(46, 9);
-	string classname;
-	getline(cin, classname);
-	transform(id.begin(), id.end(), id.begin(), ::toupper);
-	transform(classname.begin(), classname.end(), classname.begin(), ::toupper);
-	ifstream list_student;
-	list_student.open(link);
-	if (!list_student.is_open()) {
-		notify_box("Can't open file");
+	if (!(currentdate.Month == month_begin_semester[0] || currentdate.Month == month_begin_semester[1] || currentdate.Month == month_begin_semester[2])) {
+		string mess = { "Can not add a new course in this time!" };
+		notify_box(mess);
 		return 0;
 	}
 	else {
-		string source_file = link;
-		string destination_file = semester_path + "staff/" + id + "-" + classname + ".csv";
-		/*Xu li sao chep du lieu */
-		ifstream sfile;
-		sfile.open(source_file, ios::binary | ios::in);
-		ofstream dfile;
-		dfile.open(destination_file, ios::binary | ios::out);
-		if (sfile.is_open() && dfile.is_open()) {
-			char c;
-			while (sfile.get(c) && sfile.good()) {
-				dfile.put(c);/*Chep tung byte*/
-			}
-			sfile.close();
-			dfile.close();
-		}
-		else {
+		system("cls");
+		gotoxy(35, 7);
+		cout << "Linked to file list student:";
+		gotoxy(35, 8);
+		cout << "Course ID:";
+		gotoxy(35, 9);
+		cout << "Class name:";
+		gotoxy(63, 7);
+		string link;
+		getline(cin, link);
+		gotoxy(45, 8);
+		string id;
+		getline(cin, id);
+		gotoxy(46, 9);
+		string classname;
+		getline(cin, classname);
+		transform(id.begin(), id.end(), id.begin(), ::toupper);
+		transform(classname.begin(), classname.end(), classname.begin(), ::toupper);
+		ifstream list_student;
+		list_student.open(link);
+		if (!list_student.is_open()) {
 			notify_box("Can't open file");
 			return 0;
 		}
-		list_student.close();
-		int sl = count(link);
-		Student* DS_student = new Student[sl];
-		load_Student(DS_student, link, 0);
-		Course course;
-		course.course_id = id;
-		course.class_name = classname;
-		for (int i = 0; i < sl; i++) {
-			save_scoreboard_student(DS_student[i], course);
+		else {
+			string source_file = link;
+			string destination_file = semester_path + "staff/" + id + "-" + classname + ".csv";
+			/*Xu li sao chep du lieu */
+			ifstream sfile;
+			sfile.open(source_file, ios::binary | ios::in);
+			ofstream dfile;
+			dfile.open(destination_file, ios::binary | ios::out);
+			if (sfile.is_open() && dfile.is_open()) {
+				char c;
+				while (sfile.get(c) && sfile.good()) {
+					dfile.put(c);/*Chep tung byte*/
+				}
+				sfile.close();
+				dfile.close();
+			}
+			else {
+				notify_box("Can't open file");
+				return 0;
+			}
+			list_student.close();
+			int sl = count(link);
+			Student* DS_student = new Student[sl];
+			load_Student(DS_student, link, 0);
+			Course course;
+			course.course_id = id;
+			course.class_name = classname;
+			for (int i = 0; i < sl; i++) {
+				save_scoreboard_student(DS_student[i], course);
+			}
+			return 1;
 		}
-		return 1;
 	}
-	
 }
 void view_list_courses() {
 	string path = semester_path + "staff/courses.csv";
@@ -570,94 +578,171 @@ void view_list_courses() {
 	}
 }
 bool update_course_information() {
-	ifstream list_courses;
-	list_courses.open(semester_path + "staff/courses.csv");
-	if (list_courses.is_open()) {
-		string temp;
-		getline(list_courses, temp);
-		int sl = count(semester_path + "staff/courses.csv");
-		Course* DS = new Course[sl];
-		get_list_courses(semester_path + "staff/courses.csv", DS);
-		system("cls");
-		gotoxy(37, 4);
-		cout << "UPDATE COURSE INFORMATION";
-		Course new_course;
-		input_course(new_course);
-		for (int i = 0; i < sl; i++) {
-			if (DS[i].course_id == new_course.course_id && DS[i].class_name == new_course.class_name) {
-				DS[i] = new_course;
-				list_courses.close();
-				ofstream list_courses;
-				list_courses.open(semester_path + "staff/courses.csv");
-				if (list_courses.is_open()) {
-					list_courses << temp << endl;
-					for (int i = 0; i < sl - 1; i++) {
-						list_courses << DS[i].course_id << "," << DS[i].course_name << "," << DS[i].class_name << "," << DS[i].teacher_name << "," << DS[i].credits << "," << DS[i].max_students << "," << DS[i].wDay << "," << DS[i].session << "\n";
-					}
-					list_courses << DS[sl - 1].course_id << "," << DS[sl - 1].course_name << "," << DS[sl - 1].class_name << "," << DS[sl - 1].teacher_name << "," << DS[sl - 1].credits << "," << DS[sl - 1].max_students << "," << DS[sl - 1].wDay << "," << DS[sl - 1].session;
-				}
-				else {
-					notify_box("Can not open file!");
-					return 0;
-				}
-				return 1;
-				list_courses.close();
-			}
-		}
-		notify_box("This course is not exits!");
+	if (!(currentdate.Month == month_begin_semester[0] || currentdate.Month == month_begin_semester[1] || currentdate.Month == month_begin_semester[2])) {
+		string mess = { "Can not add a new course in this time!" };
+		notify_box(mess);
 		return 0;
 	}
 	else {
-		notify_box("Can not open file!");
-		return 0;
+		ifstream list_courses;
+		list_courses.open(semester_path + "staff/courses.csv");
+		if (list_courses.is_open()) {
+			string temp;
+			getline(list_courses, temp);
+			int sl = count(semester_path + "staff/courses.csv");
+			Course* DS = new Course[sl];
+			get_list_courses(semester_path + "staff/courses.csv", DS);
+			system("cls");
+			gotoxy(37, 4);
+			cout << "UPDATE COURSE INFORMATION";
+			Course new_course;
+			input_course(new_course);
+			for (int i = 0; i < sl; i++) {
+				if (DS[i].course_id == new_course.course_id && DS[i].class_name == new_course.class_name) {
+					DS[i] = new_course;
+					list_courses.close();
+					ofstream list_courses;
+					list_courses.open(semester_path + "staff/courses.csv");
+					if (list_courses.is_open()) {
+						list_courses << temp << endl;
+						for (int i = 0; i < sl - 1; i++) {
+							list_courses << DS[i].course_id << "," << DS[i].course_name << "," << DS[i].class_name << "," << DS[i].teacher_name << "," << DS[i].credits << "," << DS[i].max_students << "," << DS[i].wDay << "," << DS[i].session << "\n";
+						}
+						list_courses << DS[sl - 1].course_id << "," << DS[sl - 1].course_name << "," << DS[sl - 1].class_name << "," << DS[sl - 1].teacher_name << "," << DS[sl - 1].credits << "," << DS[sl - 1].max_students << "," << DS[sl - 1].wDay << "," << DS[sl - 1].session;
+					}
+					else {
+						notify_box("Can not open file!");
+						return 0;
+					}
+					return 1;
+					list_courses.close();
+				}
+			}
+			notify_box("This course is not exits!");
+			return 0;
+		}
+		else {
+			notify_box("Can not open file!");
+			return 0;
+		}
 	}
 }
 bool Remove_student_frome_course() {
-	system("cls");
-	gotoxy(35, 5);
-	cout << "Course ID:";
-	gotoxy(35, 6);
-	cout << "Class name:";
-	gotoxy(35, 7);
-	cout << "Student ID:";
-	string id;
-	gotoxy(45, 5);
-	getline(cin, id);
-	gotoxy(46, 6);
-	string classname;
-	getline(cin, classname);
-	gotoxy(46, 7);
-	string student_id;
-	getline(cin, student_id);
-	transform(id.begin(), id.end(), id.begin(), ::toupper);
-	transform(classname.begin(), classname.end(), classname.begin(), ::toupper);
-	string path = semester_path + "staff/" + id + "-" + classname + ".csv";
-	int sl;
-	sl= count(path);
-	if (sl > 0) {
-		Student* DS = new Student[sl + 1];
-		load_Student(DS, path, 0);
-		for (int i = 0; i < sl - 1; i++) {
-			if (DS[sl - 1].Id == student_id) {
-				sl--;
+	if (!(currentdate.Month == month_begin_semester[0] || currentdate.Month == month_begin_semester[1] || currentdate.Month == month_begin_semester[2])) {
+		string mess = { "Can not add a new course in this time!" };
+		notify_box(mess);
+		return 0;
+	}
+	else {
+		system("cls");
+		gotoxy(35, 5);
+		cout << "Course ID:";
+		gotoxy(35, 6);
+		cout << "Class name:";
+		gotoxy(35, 7);
+		cout << "Student ID:";
+		string id;
+		gotoxy(45, 5);
+		getline(cin, id);
+		gotoxy(46, 6);
+		string classname;
+		getline(cin, classname);
+		gotoxy(46, 7);
+		string student_id;
+		getline(cin, student_id);
+		transform(id.begin(), id.end(), id.begin(), ::toupper);
+		transform(classname.begin(), classname.end(), classname.begin(), ::toupper);
+		string path = semester_path + "staff/" + id + "-" + classname + ".csv";
+		int sl;
+		sl = count(path);
+		if (sl > 0) {
+			Student* DS = new Student[sl + 1];
+			load_Student(DS, path, 0);
+			for (int i = 0; i < sl - 1; i++) {
+				if (DS[sl - 1].Id == student_id) {
+					sl--;
+					break;
+				}
+				if (DS[i].Id == student_id) {
+					for (int j = i; j < sl - 1; j++) {
+						DS[j] = DS[j + 1];
+					}
+					sl--;
+					break;
+				}
+			}
+			ofstream f_course;
+			f_course.open(path);
+			if (f_course.is_open()) {
+				f_course << "No,Student ID,First name,Last name,Gender,Day of birth,Social ID" << "\n";
+				for (int i = 0; i < sl - 1; i++) {
+					f_course << i + 1 << "," << DS[i].Id << "," << DS[i].Firstname << "," << DS[i].Lastname << "," << DS[i].Gender << "," << DS[i].DoB << "," << DS[i].Social_Id << "\n";
+				}
+				f_course << sl << "," << DS[sl - 1].Id << "," << DS[sl - 1].Firstname << "," << DS[sl - 1].Lastname << "," << DS[sl - 1].Gender << "," << DS[sl - 1].DoB << "," << DS[sl - 1].Social_Id;
+				f_course.close();
+				return 1;
+			}
+			else {
+				notify_box("Can not open file!");
+				return 0;
+			}
+		}
+	}
+}
+bool Delete_a_course() {
+	if (!(currentdate.Month == month_begin_semester[0] || currentdate.Month == month_begin_semester[1] || currentdate.Month == month_begin_semester[2])) {
+		string mess = { "Can not add a new course in this time!" };
+		notify_box(mess);
+		return 0;
+	}
+	else {
+		Course course;
+		do {
+			system("cls");
+			gotoxy(37, 5);
+			cout << "DELETE A COURSE";
+			gotoxy(35, 6);
+			cout << "Course ID:";
+			gotoxy(35, 7);
+			cout << "Class:";
+			gotoxy(45, 6);
+			getline(cin, course.course_id);
+			gotoxy(41, 7);
+			getline(cin, course.class_name);
+			transform(course.course_id.begin(), course.course_id.end(), course.course_id.begin(), ::toupper);
+			transform(course.class_name.begin(), course.class_name.end(), course.class_name.begin(), ::toupper);
+			if (!check_course(course)) {
 				break;
 			}
-			if (DS[i].Id == student_id) {
-				for (int j = i; j < sl - 1; j++) {
-					DS[j] = DS[j + 1];
+			else {
+				gotoxy(37, 8);
+				cout << "This course does not exist";
+				system("pause");
+			}
+		} while (1);
+		int sl = count(semester_path + "staff/courses.csv");
+		Course* DS_course = new Course[sl];
+		get_list_courses(semester_path + "staff/courses.csv", DS_course);
+		for (int i = 0; i < sl; i++) {
+			if (DS_course[i].course_id == course.course_id && DS_course[i].class_name == course.class_name) {
+				if (i != sl - 1) {
+					for (int j = i; j < sl - 1; j++) {
+						DS_course[j] = DS_course[j + 1];
+					}
+					sl--;
+					break;
 				}
-				sl--;
-				break;
+				else sl--;
 			}
 		}
 		ofstream f_course;
-		f_course.open(path);
+		f_course.open(semester_path + "staff/courses.csv");
 		if (f_course.is_open()) {
-			f_course << "No,Student ID,First name,Last name,Gender,Day of birth,Social ID" << "\n";
+			f_course << "ID,Course name,Class name,Teacher name,Number of credits,Maximum number of students,Day of week,Session" << "\n";
 			for (int i = 0; i < sl - 1; i++) {
-				f_course <<  DS[i].Id << "," << DS[i].Firstname << "," << DS[i].Lastname << "," << DS[i].Gender << "," << DS[i].DoB << "," << DS[i].Social_Id << "\n";
+				f_course << DS_course[i].course_id << "," << DS_course[i].course_name << "," << DS_course[i].class_name << "," << DS_course[i].teacher_name << "," << DS_course[i].credits << "," << DS_course[i].max_students << "," << DS_course[i].wDay << "," << DS_course[i].session << "\n";
 			}
-			f_course <<  DS[sl - 1].Id << "," << DS[sl - 1].Firstname << "," << DS[sl - 1].Lastname << "," << DS[sl - 1].Gender << "," << DS[sl - 1].DoB << "," << DS[sl - 1].Social_Id;
+			f_course << DS_course[sl - 1].course_id << "," << DS_course[sl - 1].course_name << "," << DS_course[sl - 1].class_name << "," << DS_course[sl - 1].teacher_name << "," << DS_course[sl - 1].credits << "," << DS_course[sl - 1].max_students << "," << DS_course[sl - 1].wDay << "," << DS_course[sl - 1].session;
 			f_course.close();
 			return 1;
 		}
@@ -666,64 +751,6 @@ bool Remove_student_frome_course() {
 			return 0;
 		}
 	}
-
-}
-bool Delete_a_course() {
-	Course course;
-	do {
-		system("cls");
-		gotoxy(37, 5);
-		cout << "DELETE A COURSE";
-		gotoxy(35, 6);
-		cout << "Course ID:";
-		gotoxy(35, 7);
-		cout << "Class:";
-		gotoxy(45, 6);
-		getline(cin, course.course_id);
-		gotoxy(41, 7);
-		getline(cin, course.class_name);
-		transform(course.course_id.begin(), course.course_id.end(), course.course_id.begin(), ::toupper);
-		transform(course.class_name.begin(), course.class_name.end(), course.class_name.begin(), ::toupper);
-		if (!check_course(course)) {
-			break;
-		}
-		else {
-			gotoxy(37, 8);
-			cout << "This course does not exist";
-			system("pause");
-		}
-	} while (1);
-	int sl = count(semester_path + "staff/courses.csv");
-	Course* DS_course = new Course[sl];
-	get_list_courses(semester_path + "staff/courses.csv",DS_course);
-	for (int i = 0; i < sl; i++) {
-		if (DS_course[i].course_id == course.course_id && DS_course[i].class_name == course.class_name) {
-			if (i != sl - 1) {
-				for (int j = i; j < sl - 1; j++) {
-					DS_course[j] = DS_course[j + 1];
-				}
-				sl--;
-				break;
-			}
-			else sl--;
-		}
-	}
-	ofstream f_course;
-	f_course.open(semester_path + "staff/courses.csv");
-	if (f_course.is_open()) {
-		f_course << "ID,Course name,Class name,Teacher name,Number of credits,Maximum number of students,Day of week,Session" << "\n";
-		for (int i = 0; i < sl - 1; i++) {
-			f_course << i + 1 << "," << DS_course[i].course_id << "," << DS_course[i].course_name << "," << DS_course[i].class_name << "," << DS_course[i].teacher_name << "," << DS_course[i].credits << "," << DS_course[i].max_students<<","<<DS_course[i].wDay<<","<<DS_course[i].session << "\n";
-		}
-		f_course << sl << "," << DS_course[sl - 1].course_id << "," << DS_course[sl - 1].course_name << "," << DS_course[sl - 1].class_name << "," << DS_course[sl - 1].teacher_name << "," << DS_course[sl - 1].credits << "," << DS_course[sl - 1].max_students << "," << DS_course[sl - 1].wDay << "," << DS_course[sl - 1].session;
-		f_course.close();
-		return 1;
-	}
-	else {
-		notify_box("Can not open file!");
-		return 0;
-	}
-
 }
 void view_list_of_student_in_course() {
 	Course course;
@@ -797,11 +824,6 @@ bool export_list_of_student_in_course() {
 	}
 	else {
 		string source_file = path_course;
-		/*if (dirExists(schoolyear_path) || currentdate.Month != month_begin_a_schoolyear)
-		{
-			notify_box("Can't create new Class in this time");
-			return 0;
-		}*/
 		string destination_file = "./Data/Export/";
 		destination_file = destination_file + course.course_id + "-" + course.class_name + ".csv";
 		/*Xu li sao chep du lieu */
