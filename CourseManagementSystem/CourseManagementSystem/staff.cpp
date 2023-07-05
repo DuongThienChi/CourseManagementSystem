@@ -12,12 +12,12 @@ bool create_School_Year() {
 		return 0;
 	}
 	else {
-		string prevSchoolyear_path = "./Data/" + to_string(currentdate.Year - 1) + "-" + to_string(currentdate.Year);
+		string prev_schoolyear_path = "./Data/" + to_string(currentdate.Year - 1) + "-" + to_string(currentdate.Year);
 		string classes_path = schoolyear_path + "/classes";
-		if (dirExists(prevSchoolyear_path)) {
+		if (dirExists(prev_schoolyear_path)) {
 			fs::create_directories(classes_path);
-			prevSchoolyear_path += "/classes";
-			copyFolder(prevSchoolyear_path, classes_path);
+			prev_schoolyear_path += "/classes";
+			copyFolder(prev_schoolyear_path, classes_path);
 			fs::remove_all(classes_path + "/finalyear");
 			fs::rename(classes_path + "/thirdyear", classes_path + "/finalyear");
 			fs::rename(classes_path + "/secondyear", classes_path + "/thirdyear");
@@ -25,14 +25,6 @@ bool create_School_Year() {
 			fs::create_directories(classes_path + "/firstyear");
 			return 1;
 		}
-		else {
-			fs::create_directories(classes_path + "/firstyear");
-			fs::create_directories(classes_path + "/secondyear");
-			fs::create_directories(classes_path + "/thirdyear");
-			fs::create_directories(classes_path + "/finalyear");
-			return 1;
-		}
-
 	}
 }
 bool Quick_Input_Student_to_class() {
@@ -270,7 +262,7 @@ bool input_course(Course& new_course) {
 		gotoxy(35, 10);
 		cout << "Day of week:";
 		gotoxy(35, 11);
-		cout << "Session:";
+		cout << "Session(1/2/3/4):";
 		gotoxy(39, 5);
 		getline(cin, new_course.course_id);
 		gotoxy(48, 6);
@@ -285,7 +277,7 @@ bool input_course(Course& new_course) {
 		gotoxy(47, 10);
 		getline(cin, new_course.wDay);
 		int temp = 0;
-		gotoxy(43, 11);
+		gotoxy(53, 11);
 		cin >> temp;
 		cin.ignore();
 		if (check_course(new_course) && temp < 5 && temp>0) {
@@ -663,9 +655,9 @@ bool Remove_student_frome_course() {
 		if (f_course.is_open()) {
 			f_course << "No,Student ID,First name,Last name,Gender,Day of birth,Social ID" << "\n";
 			for (int i = 0; i < sl - 1; i++) {
-				f_course << i + 1 << "," << DS[i].Id << "," << DS[i].Firstname << "," << DS[i].Lastname << "," << DS[i].Gender << "," << DS[i].DoB << "," << DS[i].Social_Id << "\n";
+				f_course <<  DS[i].Id << "," << DS[i].Firstname << "," << DS[i].Lastname << "," << DS[i].Gender << "," << DS[i].DoB << "," << DS[i].Social_Id << "\n";
 			}
-			f_course << sl << "," << DS[sl - 1].Id << "," << DS[sl - 1].Firstname << "," << DS[sl - 1].Lastname << "," << DS[sl - 1].Gender << "," << DS[sl - 1].DoB << "," << DS[sl - 1].Social_Id;
+			f_course <<  DS[sl - 1].Id << "," << DS[sl - 1].Firstname << "," << DS[sl - 1].Lastname << "," << DS[sl - 1].Gender << "," << DS[sl - 1].DoB << "," << DS[sl - 1].Social_Id;
 			f_course.close();
 			return 1;
 		}
