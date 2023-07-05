@@ -16,6 +16,7 @@
 
 using namespace std;
 namespace fs = filesystem;
+
 struct Date {
     int Day;
     int Month;
@@ -65,6 +66,7 @@ struct Course {
     float TotalMark = 0;
 
 };
+
 void color(int color);
 void gotoxy(int x, int y);
 void disp(int n, char menu[][40], int rows, int cols,int width, int height);

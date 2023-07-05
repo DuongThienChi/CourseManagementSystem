@@ -3,23 +3,8 @@
 Date currentdate;
 string  schoolyear_path;
 string semester_path;
-void color(int color) {
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
-}
-void gotoxy(int x, int y) {
-	COORD c;
-	c.X = x;
-	c.Y = y;
-	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), c);
-}
-int getConsoleWindowSize(int& width, int& height) {
-	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-	CONSOLE_SCREEN_BUFFER_INFO csbi;
-	GetConsoleScreenBufferInfo(hConsole, &csbi);
-	width = csbi.srWindow.Right - csbi.srWindow.Left + 1;
-	height = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
-	return 0;
-}
+
+//Ham ho tro menu + in title
 void print_Text(string filename, int cl, int x, int y) //In du lieu tep tin
 {
 	fstream f;
@@ -59,7 +44,7 @@ void disp(int n, char menu[][40], int rows, int cols, int width, int height)
 			cout << menu[i];
 		}
 	}
-}
+} //tham khao tren youtube
 void notify_box(string messg) {
 	system("cls");
 	gotoxy(35, 6);
@@ -111,21 +96,10 @@ int menu(char menu[][40], int rows, int cols, int width, int height)
 		}
 	}
 	return -1;
-}
-void thoatctrinh() {
-	char c;
-	do {
-		color(7);
-		cout << "\nBan co thoat chuong trinh? (y/n):";
-		cin >> c;
-	} while (c != 'y' && c != 'n');
-	if (c == 'y')
-		exit(1);
-	if (c == 'n') {
-		system("cls");
+} //tham khao tren youtube
 
-	}
-}
+
+//Xu ly Course
 void get_list_courses(string path, Course*& DS) {
 	ifstream list_courses;
 	list_courses.open(path);
@@ -350,13 +324,15 @@ void add_to_User(Student a) {
 		user.close();
 	}
 }
+
+//Ham ho tro login + menu lua chon
 void Menu_Login() {
 	char menu1[3][40] = { "Login as Student" ,"Login as Staff","Exit" };
 	while (1) {
 		system("cls");
 		cout << currentdate.Day << "/" << currentdate.Month << "/" << currentdate.Year << endl;
 		print_Text("./Data/Title/title.txt", 9, 15, 3);
-		int choice = menu(menu1, 3, 40,48,8);
+		int choice = menu(menu1, 3, 40, 48, 8);
 		if (choice == 0)
 		{
 			Student_lg();
@@ -396,20 +372,53 @@ void getsemester_path() {
 	}
 	semester_path = schoolyear_path + "/semester " + to_string(i) + "/";
 }
-bool dirExists(const std::string& dirName_in)
+void thoatctrinh() {
+	char c;
+	do {
+		color(7);
+		cout << "\nBan co thoat chuong trinh? (y/n):";
+		cin >> c;
+	} while (c != 'y' && c != 'n');
+	if (c == 'y')
+		exit(1);
+	if (c == 'n') {
+		system("cls");
+
+	}
+}
+
+//Tham khao tren stackoverflow + youtube
+bool dirExists(const std::string& dirName_in) 
 {
 	DWORD ftyp = GetFileAttributesA(dirName_in.c_str());
 	if (ftyp == INVALID_FILE_ATTRIBUTES)
-		return false;  //something is wrong with your path!
+		return false;  
 
 	if (ftyp & FILE_ATTRIBUTE_DIRECTORY)
-		return true;   // this is a directory!
+		return true;  
 
-	return false;    // this is not a directory!
-}
+	return false;   
+}  
 void copyFolder(string from, string to) {
 	const auto copyOptions = filesystem::copy_options::update_existing
 		| filesystem::copy_options::recursive
 		;
 	filesystem::copy(from, to, copyOptions);
+}  
+void color(int color) {
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
+}
+void gotoxy(int x, int y) {
+	COORD c;
+	c.X = x;
+	c.Y = y;
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), c);
+}
+int getConsoleWindowSize(int& width, int& height) {
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	GetConsoleScreenBufferInfo(hConsole, &csbi);
+	width = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+	height = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+	return 0;
 }

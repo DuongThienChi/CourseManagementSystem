@@ -3,6 +3,7 @@
 const int  month_begin_a_schoolyear = 9;
 const int month_begin_semester[] = { 9,3,7 };
 Semester semester;;
+
 //Begin new school year
 bool create_School_Year() {
 	if (currentdate.Month != month_begin_a_schoolyear) {
@@ -201,6 +202,7 @@ bool add_Student_to_Class() {
 		return 1;
 	}
 }
+
 //Begin new semester
 bool createSemester() {
 	if (currentdate.Month != month_begin_semester[0] && currentdate.Month != month_begin_semester[1] && currentdate.Month != month_begin_semester[2]) {
@@ -291,11 +293,14 @@ bool input_course(Course& new_course) {
 			cout << "Nhap sai! Ban co muon nhap lai(y/n): ";
 			string tmp;
 			getline(cin, tmp);
+			system("pause");
 			if (tmp == "n")
 				return 0;
+		}
+		else {
+			new_course.session = session[temp - 1];
 			break;
 		}
-		new_course.session = session[temp - 1];
 
 	} while (1);
 	return 1;
@@ -356,15 +361,21 @@ void view_list_of_student_in_class() {
 			class_exits = true;
 			string path_string = { ds[i].path.u8string() };
 			int sl = count(path_string);
-			Student* DS_student = new Student[sl];
-			load_Student(DS_student, path_string, 0);
-			system("cls");
-			cout << left << setw(3) << "No" << setw(11) << "Student ID" << setw(17) << "First name" << setw(10) << "Last name" << setw(7) << "Gender" << setw(9) << "DoB" << setw(10) << "Social ID" << "\n";
-			for (int i = 0; i < sl; i++) {
-				cout << left << setw(3) << i + 1 << setw(11) << DS_student[i].Id << setw(17) << DS_student[i].Firstname << setw(10) << DS_student[i].Lastname << setw(7) << DS_student[i].Gender << setw(9) << DS_student[i].DoB << setw(10) << DS_student[i].Social_Id << "\n";
+			if (sl > 0) {
+				Student* DS_student = new Student[sl];
+				load_Student(DS_student, path_string, 0);
+				system("cls");
+				cout << left << setw(3) << "No" << setw(11) << "Student ID" << setw(17) << "First name" << setw(10) << "Last name" << setw(7) << "Gender" << setw(9) << "DoB" << setw(10) << "Social ID" << "\n";
+				for (int i = 0; i < sl; i++) {
+					cout << left << setw(3) << i + 1 << setw(11) << DS_student[i].Id << setw(17) << DS_student[i].Firstname << setw(10) << DS_student[i].Lastname << setw(7) << DS_student[i].Gender << setw(9) << DS_student[i].DoB << setw(10) << DS_student[i].Social_Id << "\n";
+				}
+				system("pause");
+				break;
 			}
-			system("pause");
-			break;
+			else {
+				notify_box("No data");
+				return;
+			}
 		}
 
 	}
@@ -450,12 +461,12 @@ void save_scoreboard_student(Student student, Course course) {
 	}
 }
 bool add_Course_to_Semester() {
-	/* if (currentdate.Month != month_begin_semester[0] || currentdate.Month != month_begin_semester[1] || currentdate.Month != month_begin_semester[2]) {
+     if (currentdate.Month != month_begin_semester[0] || currentdate.Month != month_begin_semester[1] || currentdate.Month != month_begin_semester[2]) {
 		 string mess = { "Can not add a new course in this time!" };
 		 notify_box(mess);
 		 return 0;
 	 }
-	 else {*/
+	else {
 	gotoxy(37, 4);
 	cout << "ADD A COURSE TO SEMESTER";
 	fstream f_course;
@@ -486,7 +497,7 @@ bool add_Course_to_Semester() {
 		notify_box("Course not created");
 		return 0;
 	}
-	// }
+ }
 }
 bool Quick_Input_student_to_course() {
 	system("cls");
@@ -550,16 +561,22 @@ bool Quick_Input_student_to_course() {
 void view_list_courses() {
 	string path = semester_path + "staff/courses.csv";
 	int sl = count(path);
-	Course* DS;
-	get_list_courses(path, DS);
-	system("cls");
-	cout << left << setw(9) << "ID" << setw(24) << "Name" << setw(12) << "Class" << setw(24) << "Teacher" << setw(9) << "Credits" << setw(17) << "Maximum students " << setw(10) << "Day" << setw(7) << "Session" << endl;
-	for (int i = 0; i < sl; i++) {
-		cout << left << setw(9) << DS[i].course_id << setw(24) << DS[i].course_name << setw(12) << DS[i].class_name << setw(24) << DS[i].teacher_name << setw(9) << DS[i].credits << setw(17) << DS[i].max_students << setw(10) << DS[i].wDay << setw(7) << DS[i].session << endl;
+	if (sl > 0) {
+		Course* DS;
+		get_list_courses(path, DS);
+		system("cls");
+		cout << left << setw(9) << "ID" << setw(24) << "Name" << setw(12) << "Class" << setw(24) << "Teacher" << setw(9) << "Credits" << setw(17) << "Maximum students " << setw(10) << "Day" << setw(7) << "Session" << endl;
+		for (int i = 0; i < sl; i++) {
+			cout << left << setw(9) << DS[i].course_id << setw(24) << DS[i].course_name << setw(12) << DS[i].class_name << setw(24) << DS[i].teacher_name << setw(9) << DS[i].credits << setw(17) << DS[i].max_students << setw(10) << DS[i].wDay << setw(7) << DS[i].session << endl;
+		}
+		system("pause");
+		return;
 	}
-	system("pause");
-	return;
+	else {
+		notify_box("No any course in this semester!");
+		return;
 	}
+}
 bool update_course_information() {
 	ifstream list_courses;
 	list_courses.open(semester_path + "staff/courses.csv");
@@ -753,6 +770,7 @@ void view_list_of_student_in_course() {
 	system("pause");
 
 }
+
 //End of a semester
 bool export_list_of_student_in_course() {
 	Course course;
@@ -998,49 +1016,59 @@ void view_scoreboard_class() {
 	}
 }
 bool update_student_result() {
-	system("cls");
-	gotoxy(35, 5);
-	cout << "UPDATE STUDENT RESULT";
-	gotoxy(35, 6);
-	cout << "Student ID:";
-	gotoxy(35, 7);
-	cout << "Course ID:";
-	gotoxy(35, 8);
-	cout << "Class:";
-	gotoxy(35, 9);
-	cout << "Midterm Mark:";
-	gotoxy(35, 10);
-	cout << "Final Mark:";
-	gotoxy(35, 11);
-	cout << "Other Mark:";
-	gotoxy(35, 12);
-	cout << "Total Mark:";
 	Course course;
 	string student_id;
-	string MidtermMark;
-	string FinalMark;
-	string OtherMark;
-	string TotalMark;
-	gotoxy(46, 6);
-	getline(cin, student_id);
-	gotoxy(45, 7);
-	getline(cin, course.course_id);
-	gotoxy(41, 8);
-	getline(cin, course.class_name);
-	gotoxy(48, 9);
-	getline(cin, MidtermMark);
-	gotoxy(46, 10);
-	getline(cin, FinalMark);
-	gotoxy(46, 11);
-	getline(cin, OtherMark);
-	gotoxy(46, 12);
-	getline(cin, TotalMark);
-	course.MidtermMark = stof(MidtermMark);
-	course.FinalMark = stof(FinalMark);
-	course.OtherMark = stof(OtherMark);
-	course.TotalMark = stof(TotalMark);
-	transform(course.course_id.begin(), course.course_id.end(), course.course_id.begin(), ::toupper);
-	transform(course.class_name.begin(), course.class_name.end(), course.class_name.begin(), ::toupper);
+	do {
+		system("cls");
+		gotoxy(35, 5);
+		cout << "UPDATE STUDENT RESULT";
+		gotoxy(35, 6);
+		cout << "Student ID:";
+		gotoxy(35, 7);
+		cout << "Course ID:";
+		gotoxy(35, 8);
+		cout << "Class:";
+		gotoxy(35, 9);
+		cout << "Midterm Mark:";
+		gotoxy(35, 10);
+		cout << "Final Mark:";
+		gotoxy(35, 11);
+		cout << "Other Mark:";
+		gotoxy(35, 12);
+		cout << "Total Mark:";
+		string MidtermMark;
+		string FinalMark;
+		string OtherMark;
+		string TotalMark;
+		gotoxy(46, 6);
+		getline(cin, student_id);
+		gotoxy(45, 7);
+		getline(cin, course.course_id);
+		gotoxy(41, 8);
+		getline(cin, course.class_name);
+		gotoxy(48, 9);
+		getline(cin, MidtermMark);
+		gotoxy(46, 10);
+		getline(cin, FinalMark);
+		gotoxy(46, 11);
+		getline(cin, OtherMark);
+		gotoxy(46, 12);
+		getline(cin, TotalMark);
+		course.MidtermMark = stof(MidtermMark);
+		course.FinalMark = stof(FinalMark);
+		course.OtherMark = stof(OtherMark);
+		course.TotalMark = stof(TotalMark);
+		transform(course.course_id.begin(), course.course_id.end(), course.course_id.begin(), ::toupper);
+		transform(course.class_name.begin(), course.class_name.end(), course.class_name.begin(), ::toupper);
+		if (!check_course(course)) {
+			break;
+		}
+		else {
+			gotoxy(37, 8);
+			cout << "This course does not exist";
+			system("pause");
+		}
+	} while (1);
 	string path_course = semester_path + "staff/" + course.course_id + "-" + course.class_name + "-scoreboard.csv";
 	int sl = count(path_course);
 	Course* DS_Course = new Course[sl];
@@ -1127,6 +1155,7 @@ bool publish_scoreboard() {
 	else
 	 return 0;
 }
+
 //Login and MENU
 void Manage_course() {
 	char menu_mange_course[14][40] = { "1.Add a course to semester", "2.Quick input student to a course","3.Update course information","4.Delete a course", "5.Remove a student form course","6.View list of courses","7.View list of students in a course", "8.Import scoreboard a course","9.Export list of student in a course ","10.Update student result","11.View scoreboard of a course","12.Publish scoreboard","13.Back"};

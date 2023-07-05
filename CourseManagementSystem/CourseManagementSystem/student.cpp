@@ -226,4 +226,4 @@ void Student_lg() {
 			}
 		} while (1);
 	}
-}
+} 
