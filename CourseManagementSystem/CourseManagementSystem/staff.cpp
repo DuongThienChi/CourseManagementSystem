@@ -1038,9 +1038,9 @@ void view_scoreboard_class() {
 				Student* DS_student = new Student[sl];
 				calculateGPA_class(DS_student, class_path);
 				system("cls");
-				cout << left << setw(3) << "No" << setw(11) << "Student ID" << setw(17) << "First name" << setw(10) << "Last name" << setw(7) << "Gender" << setw(4) << "GPA" << setw(12) << "Overall GPA" << "\n";
+				cout << left << setw(3) << "No" << setw(11) << "Student ID" << setw(17) << "First name" << setw(10) << "Last name" << setw(7) << "Gender" << setw(5) << "GPA" << setw(12) << "Overall GPA" << "\n";
 				for (int i = 0; i < sl; i++) {
-					cout << left << setw(3) << i + 1 << setw(11) << DS_student[i].Id << setw(17) << DS_student[i].Firstname << setw(10) << DS_student[i].Lastname << setw(7) << DS_student[i].Gender << setw(4) << DS_student[i].GPA << setw(12) << DS_student[i].overallGPA << "\n";
+					cout << left << setw(3) << i + 1 << setw(11) << DS_student[i].Id << setw(17) << DS_student[i].Firstname << setw(10) << DS_student[i].Lastname << setw(7) << DS_student[i].Gender << setw(5) << setprecision(2) << fixed << DS_student[i].GPA << setw(12) << setprecision(2) << fixed << DS_student[i].overallGPA << "\n";
 				}
 				system("pause");
 				break;
