@@ -35,62 +35,57 @@ bool create_School_Year() {
 	}
 }
 bool Quick_Input_Student_to_class() {
-	system("cls");
-	gotoxy(37, 6);
-	cout << "Quick Input Student to Class";
-	gotoxy(35, 7);
-	cout << "Linked to file classes:";
-	gotoxy(35, 8);
-	cout << "Name of class:";
-	gotoxy(58, 7);
-	string link;
-	getline(cin, link);
-	gotoxy(49, 8);
-	string name_class;
-	getline(cin, name_class);
-	ifstream classe_in;
-	classe_in.open(link);
-	if (!classe_in.is_open()) {
-		notify_box("Can't open file");
-		system("pause");
+	if (currentdate.Month != month_begin_a_schoolyear)
+	{
+		notify_box("Can't add Student in this time");
 		return 0;
 	}
 	else {
-		string source_file = link;
-		if (dirExists(schoolyear_path) || currentdate.Month != month_begin_a_schoolyear)
-		{
-			notify_box("Can't create new Class in this time");
+		system("cls");
+		gotoxy(37, 6);
+		cout << "Quick Input Student to Class";
+		gotoxy(35, 7);
+		cout << "Linked to file classes:";
+		gotoxy(35, 8);
+		cout << "Name of class:";
+		gotoxy(58, 7);
+		string link;
+		getline(cin, link);
+		gotoxy(49, 8);
+		string name_class;
+		getline(cin, name_class);
+		ifstream classe_in;
+		classe_in.open(link);
+		if (!classe_in.is_open()) {
+			notify_box("Can't open file");
+			system("pause");
 			return 0;
-		}
-		string destination_file = schoolyear_path + "/classes/firstyear/";
-		//for (int i = source_file.length(); i >= 0; i--) {
-		//    if (source_file[i] == '/') {
-		//        name_class = source_file.substr(i + 1, source_file.length() - i - 1); // /data/classes/22ctt2.csv
-		//        break;
-		//    }
-		//}
-		destination_file = destination_file + name_class + ".csv";
-		/*Xu li sao chep du lieu */
-		ifstream sfile;
-		sfile.open(source_file, ios::binary | ios::in);
-		ofstream dfile;
-		dfile.open(destination_file, ios::binary | ios::out);
-		if (sfile.is_open() && dfile.is_open()) {
-			char c;
-			while (sfile.get(c) && sfile.good()) {
-				dfile.put(c);/*Chep tung byte*/
-			}
-			sfile.close();
-			dfile.close();
-			notify_box("Class " + name_class + " is created");
 		}
 		else {
-			notify_box("Can't open file");
-			return 0;
+			string source_file = link;
+			string destination_file = schoolyear_path + "/classes/firstyear/";
+			destination_file = destination_file + name_class + ".csv";
+			/*Xu li sao chep du lieu */
+			ifstream sfile;
+			sfile.open(source_file, ios::binary | ios::in);
+			ofstream dfile;
+			dfile.open(destination_file, ios::binary | ios::out);
+			if (sfile.is_open() && dfile.is_open()) {
+				char c;
+				while (sfile.get(c) && sfile.good()) {
+					dfile.put(c);/*Chep tung byte*/
+				}
+				sfile.close();
+				dfile.close();
+				notify_box("Class " + name_class + " is created");
+			}
+			else {
+				notify_box("Can't open file");
+				return 0;
+			}
+			return 1;
 		}
-		return 1;
 	}
-
 }
 void sort_DS_Student(Student*& DS, int sl) {
 	for (int i = 0; i < sl - 1; i++) {
@@ -160,7 +155,7 @@ bool add_Student_to_Class() {
 				gotoxy(35, 8);
 				cout << "Gender:";
 				gotoxy(35, 9);
-				cout << "Day of birth:";
+				cout << "Day of birth(dd-mm-yy):";
 				gotoxy(35, 10);
 				cout << "Scocial ID:";
 				gotoxy(39, 5);
@@ -171,7 +166,7 @@ bool add_Student_to_Class() {
 				getline(cin, new_std.Lastname);
 				gotoxy(44, 8);
 				getline(cin, new_std.Gender);
-				gotoxy(48, 9);
+				gotoxy(58, 9);
 				getline(cin, new_std.DoB);
 				gotoxy(47, 10);
 				getline(cin, new_std.Social_Id);
@@ -483,6 +478,8 @@ bool add_Course_to_Semester() {
 		 return 0;
 	 }
 	 else {*/
+	gotoxy(37, 4);
+	cout << "ADD A COURSE TO SEMESTER";
 	fstream f_course;
 	f_course.open(semester_path + "staff/courses.csv");
 	if (f_course.is_open()) {
@@ -595,6 +592,8 @@ bool update_course_information() {
 		Course* DS = new Course[sl];
 		get_list_courses(semester_path + "staff/courses.csv", DS);
 		system("cls");
+		gotoxy(37, 4);
+		cout << "UPDATE COURSE INFORMATION";
 		Course new_course;
 		input_course(new_course);
 		for (int i = 0; i < sl; i++) {
@@ -946,32 +945,43 @@ void calculateGPA_class(Student *&DS_student, string class_path) {
 	}
 }
 void view_scoreboard_class() {
-	system("cls");
-	string class_name;
-	gotoxy(37, 5);
-	cout << "VIEW SCOREBOARD OF CLASS";
-	gotoxy(35, 6);
-	cout << "Class:";
-	getline(cin, class_name);
-	transform(class_name.begin(), class_name.end(), class_name.begin(), ::toupper);
-	Class* ds = new Class[count_number_classes()];
-	load_list_classes(ds);
-	for (int i = 0; i < count_number_classes(); i++) {
-		if (ds[i].className == class_name) {
-			string class_path = { ds[i].path.u8string() };
-			int sl = count(class_path);
-			Student* DS_student = new Student[sl];
-			calculateGPA_class(DS_student, class_path);
-			system("cls");
-			cout << left << setw(3) << "No" << setw(11) << "Student ID" << setw(17) << "First name" << setw(10) << "Last name" << setw(7) << "Gender" << setw(4) << "GPA" << setw(12) << "Overall GPA" << "\n";
-			for (int i = 0; i < sl; i++) {
-				cout << left << setw(3) << i + 1 << setw(11) << DS_student[i].Id << setw(17) << DS_student[i].Firstname << setw(10) << DS_student[i].Lastname << setw(7) << DS_student[i].Gender << setw(4) << DS_student[i].GPA << setw(12) << DS_student[i].overallGPA << "\n";
+	bool publish = 0;
+	ifstream f_publish(semester_path + "Publish_Scoreboard.bin");
+	if (f_publish.is_open()) {
+		f_publish >> publish;
+		f_publish.close();
+	}
+	if (publish) {
+		system("cls");
+		string class_name;
+		gotoxy(37, 5);
+		cout << "VIEW SCOREBOARD OF CLASS";
+		gotoxy(35, 6);
+		cout << "Class:";
+		getline(cin, class_name);
+		transform(class_name.begin(), class_name.end(), class_name.begin(), ::toupper);
+		Class* ds = new Class[count_number_classes()];
+		load_list_classes(ds);
+		for (int i = 0; i < count_number_classes(); i++) {
+			if (ds[i].className == class_name) {
+				string class_path = { ds[i].path.u8string() };
+				int sl = count(class_path);
+				Student* DS_student = new Student[sl];
+				calculateGPA_class(DS_student, class_path);
+				system("cls");
+				cout << left << setw(3) << "No" << setw(11) << "Student ID" << setw(17) << "First name" << setw(10) << "Last name" << setw(7) << "Gender" << setw(4) << "GPA" << setw(12) << "Overall GPA" << "\n";
+				for (int i = 0; i < sl; i++) {
+					cout << left << setw(3) << i + 1 << setw(11) << DS_student[i].Id << setw(17) << DS_student[i].Firstname << setw(10) << DS_student[i].Lastname << setw(7) << DS_student[i].Gender << setw(4) << DS_student[i].GPA << setw(12) << DS_student[i].overallGPA << "\n";
+				}
+				system("pause");
+				break;
 			}
-			system("pause");
-			break;
 		}
 	}
-
+	else {
+		notify_box("The scoreboard has not been released yet");
+		return;
+	}
 }
 bool update_student_result() {
 	system("cls");
